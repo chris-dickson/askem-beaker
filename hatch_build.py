@@ -31,12 +31,12 @@ class CustomHook(BuildHookInterface):
 
         # Inspect context files to build a dynamic mapping of context slugs to context classes
         context_classes = {}
-        context_src = os.path.join(here, "beaker_kernel", "contexts")
+        context_src = os.path.join(here, "src", "askem_beaker", "contexts")
         if os.path.exists(context_src):
             for fpath in os.listdir(context_src):
                 if fpath.startswith("_"):
                     continue
-                package_name = f"beaker_kernel.contexts.{fpath}.context"
+                package_name = f"askem_beaker.contexts.{fpath}.context"
                 slug = fpath
                 full_path = os.path.join(context_src, fpath, "context.py")
                 with open(full_path) as f:
@@ -49,27 +49,15 @@ class CustomHook(BuildHookInterface):
                         class_name = symbol.name
                         context_classes[slug] = (package_name, class_name)
 
-
-        # Inspect subkernel files to build a dynamic map of defined subkernels
-        subkernel_classes = {}
-        subkernel_src = os.path.join(here, "beaker_kernel", "lib", "subkernels")
-        if os.path.exists(subkernel_src):
-            for fpath in os.listdir(subkernel_src):
-                if fpath.startswith("_") or fpath.startswith("base"):
-                    continue
-                package_name = f"beaker_kernel.lib.subkernels.{os.path.splitext(fpath)[0]}"
-                module = importlib.import_module(package_name)
-                subkernel_list = inspect.getmembers(module, lambda member: inspect.isclass(member) and not member.__name__.startswith("Base"))
-                for class_name, class_instance in subkernel_list:
-                    slug = getattr(class_instance, "SLUG")
-                    if slug in context_classes:
-                        raise SyntaxError("Only one context is allowed to be defined per module.")
-                    subkernel_classes[slug] = (package_name, class_name)
-
         # Write out mappings for each context and subkernel to an individual json file
-        for typename, src in [("contexts", context_classes), ("subkernels", subkernel_classes)]:
+        build_config = self.build_config.build_config
+        for typename, src in [("contexts", context_classes)]:
             dest_dir = os.path.join(dest, typename)
             os.makedirs(dest_dir, exist_ok=True)
             for slug, (package_name, class_name) in src.items():
-                with open(os.path.join(dest_dir, f"{slug}.json"), "w") as f:
+                dest_file = os.path.join(dest_dir, f"{slug}.json")
+                with open(dest_file, "w") as f:
                     json.dump({"slug": slug, "package": package_name, "class_name": class_name}, f, indent=2)
+                # Add wheel.shared-data mappings for each file so it is installed to the correct location
+                build_config["targets"]["wheel"]["shared-data"][dest_file] = f"share/beaker/{typename}/{slug}.json"
+
