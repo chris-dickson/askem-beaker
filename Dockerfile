@@ -1,11 +1,10 @@
 FROM ghcr.io/darpa-askem/askem-julia:latest AS JULIA_BASE_IMAGE
 
-
 FROM python:3.10
-RUN useradd -m jupyter
-EXPOSE 8888
-RUN mkdir -p /usr/local/share/jupyter/kernels && chmod -R 777 /usr/local/share/jupyter/kernels
 
+USER root
+
+# Install custom Julia
 ENV JULIA_PATH=/usr/local/julia
 ENV JULIA_DEPOT_PATH=/usr/local/julia
 ENV JULIA_PROJECT=/home/jupyter/.julia/environments/askem
@@ -15,8 +14,6 @@ COPY --chown=1000:1000 --from=JULIA_BASE_IMAGE /ASKEM-Sysimage.so /Project.toml 
 RUN chmod -R 777 /usr/local/julia/logs
 RUN ln -sf /usr/local/julia/bin/julia /usr/local/bin/julia
 
-WORKDIR /home/jupyter
-
 # Install r-lang and kernel
 RUN apt update && \
     apt install -y r-base r-cran-irkernel \
@@ -25,35 +22,28 @@ RUN apt update && \
     apt clean -y && \
     apt autoclean -y
 
-WORKDIR /jupyter
+# Switch to non-root user. It is crucial for security reasons to not run jupyter as root user!
+RUN useradd -m jupyter
+USER jupyter
 
-# Install Python requirements
-RUN pip install --upgrade --no-cache-dir hatch pip
+# Install Mira from github
+RUN git clone https://github.com/indralab/mira.git /home/jupyter/mira && \
+    pip install --no-cache-dir /home/jupyter/mira/"[ode,tests,dkg-client,sbml]" && \
+    rm -r /home/jupyter/mira
 
 # Install project requirements
-COPY --chown=1000:1000 pyproject.toml README.md hatch_build.py /jupyter/
-# Hack to install requirements without requiring the rest of the files
-RUN pip install -e .
+COPY --chown=1000:1000 pyproject.toml README.md hatch_build.py /home/jupyter/askem_beaker/
+COPY --chown=1000:1000 . /home/jupyter/askem_beaker/
 
-# Install Mira from `hackathon` branch
-RUN git clone https://github.com/indralab/mira.git /mira && \
-    pip install /mira/"[ode,tests,dkg-client,sbml]" && \
-    rm -r /mira
+# Installs the askem specific subkernels
+RUN pip install --no-cache-dir --upgrade /home/jupyter/askem_beaker
 
-# Kernel must be placed in a specific spot in the filesystem
-# TODO: Replace this with helper that just copies the required file(s) via a python script?
-COPY beaker_kernel/kernel.json /usr/local/share/jupyter/kernels/beaker_kernel/kernel.json
+#WORKDIR /askem_beaker
+WORKDIR /home/jupyter
 
-# Copy src code over
-COPY --chown=1000:1000 . /jupyter
-RUN chown -R 1000:1000 /jupyter
-RUN pip install .
-
-# Switch to non-root user. It is crucial for security reasons to not run jupyter as root user!
-USER jupyter
 
 # Install Julia kernel (as user jupyter)
 RUN /usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so -e 'using IJulia; IJulia.installkernel("julia"; julia=`/usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so --threads=4`)'
 
-# Service
-CMD ["python", "service/main.py", "--ip", "0.0.0.0"]
+CMD ["python", "-m", "beaker_kernel.server.main", "--ip", "0.0.0.0"]
+
