@@ -30,7 +30,6 @@ class DecapodesContext(BaseContext):
 
     async def setup(self, config, parent_header):
         self.config = config
-        var_names = list(config.keys())
 
         def fetch_model(model_id):
             meta_url = f"{os.environ['DATA_SERVICE_URL']}/models/{model_id}"
@@ -40,16 +39,16 @@ class DecapodesContext(BaseContext):
             model = json.dumps(response.json()["model"])
             return model
 
-        load_commands = [
-            '%s = parse_json_acset(SummationDecapode{Symbol, Symbol, Symbol},"""%s""")' % (var_name, fetch_model(decapode_id))
-            for var_name, decapode_id in config.items()
-        ]
+        variables = {
+            var_name: fetch_model(decapode_id) for var_name, decapode_id in config.items()
+        }
 
         command = "\n".join(
             [
                 self.get_code("setup"),
-                "decapode = @decapode begin end",
-                *load_commands
+                self.get_code("load_model", {
+                    "variables": variables,
+                }),
             ]
         )
         print(f"Running command:\n-------\n{command}\n---------")
@@ -220,3 +219,23 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         self.beaker_kernel.send_response(
             "iopub", "save_model_response", content, parent_header=message.header
         )
+
+    @intercept()
+    async def reset_request(self, message):
+        content = message.content
+
+        model_name = content.get("model_name", self.target)
+        reset_code = self.get_code("reset", {
+            "var_name": model_name,
+        })
+        reset_result = await self.execute(reset_code)
+
+        content = {
+            "success": True,
+            "executed_code": reset_result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "reset_response", content, parent_header=message.header
+        )
+        await self.send_decapodes_preview_message(parent_header=message.header)
