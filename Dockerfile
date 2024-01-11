@@ -1,23 +1,27 @@
-FROM ghcr.io/darpa-askem/askem-julia:latest AS JULIA_BASE_IMAGE
+<<<<<<< HEAD
+# FROM ghcr.io/darpa-askem/askem-julia:latest AS JULIA_BASE_IMAGE
+=======
+FROM ghcr.io/darpa-askem/askem-julia:3.0.0 AS JULIA_BASE_IMAGE
+>>>>>>> 0797cf131061bf624db079b7887b908b1aa4a895
 
-FROM python:3.10
+# FROM python:3.10
+FROM docker-hub.uncharted.software/library/python:3.10
 
 USER root
 
 # Install custom Julia
-ENV JULIA_PATH=/usr/local/julia
-ENV JULIA_DEPOT_PATH=/usr/local/julia
-ENV JULIA_PROJECT=/home/jupyter/.julia/environments/askem
+# ENV JULIA_PATH=/usr/local/julia
+# ENV JULIA_DEPOT_PATH=/usr/local/julia
+# ENV JULIA_PROJECT=/home/jupyter/.julia/environments/askem
 
-COPY --chown=1000:1000 --from=JULIA_BASE_IMAGE /usr/local/julia /usr/local/julia
-COPY --chown=1000:1000 --from=JULIA_BASE_IMAGE /ASKEM-Sysimage.so /Project.toml /Manifest.toml /home/jupyter/.julia/environments/askem/
-RUN chmod -R 777 /usr/local/julia/logs
-RUN ln -sf /usr/local/julia/bin/julia /usr/local/bin/julia
+# COPY --chown=1000:1000 --from=JULIA_BASE_IMAGE /usr/local/julia /usr/local/julia
+# COPY --chown=1000:1000 --from=JULIA_BASE_IMAGE /ASKEM-Sysimage.so /Project.toml /Manifest.toml /home/jupyter/.julia/environments/askem/
+# RUN chmod -R 777 /usr/local/julia/logs
+# RUN ln -sf /usr/local/julia/bin/julia /usr/local/bin/julia
 
 # Install r-lang and kernel
 RUN apt update && \
-    apt install -y r-base r-cran-irkernel \
-        graphviz libgraphviz-dev \
+    apt install -y graphviz libgraphviz-dev \
         libevent-core-2.1-7 libevent-pthreads-2.1-7 && \
     apt clean -y && \
     apt autoclean -y
@@ -43,7 +47,7 @@ WORKDIR /home/jupyter
 
 
 # Install Julia kernel (as user jupyter)
-RUN /usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so -e 'using IJulia; IJulia.installkernel("julia"; julia=`/usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so --threads=4`)'
+# RUN /usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so -e 'using IJulia; IJulia.installkernel("julia"; julia=`/usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so --threads=4`)'
 
 CMD ["python", "-m", "beaker_kernel.server.main", "--ip", "0.0.0.0"]
 
