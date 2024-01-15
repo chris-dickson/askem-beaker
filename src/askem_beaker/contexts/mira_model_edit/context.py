@@ -48,7 +48,7 @@ class MiraModelEditContext(BaseContext):
     async def replace_template_name(self, message):
         content = message.content
 
-        model_name = content.get("model_name")
+        model = content.get("model")
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
@@ -56,7 +56,7 @@ class MiraModelEditContext(BaseContext):
             "iopub",
             "replace_template_name",
             {
-                "model_name": model_name,
+                "model": model,
                 "old_name": old_name,
                 "new_name": new_name
             },
