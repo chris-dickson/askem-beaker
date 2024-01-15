@@ -28,30 +28,22 @@ class MiraModelEditAgent(BaseAgent):
         self, query: str, agent: AgentRef, loop: LoopControllerRef
     ) -> None:
         """
-        Generated  code to be run in an interactive Jupyter notebook for the purpose of exploring, modifying and visualizing a Dataframe.
+       Generated Python code to be run in an interactive Jupyter notebook for the purpose of exploring, modifying and visualizing a Pandas Dataframe.
 
-        Input is a full grammatically correct question about or request for an action to be performed on the loaded dataframe.
+        Input is a full grammatically correct question about or request for an action to be performed on the loaded model.
 
-        Args:
-            query (str): A fully grammatically correct question about the current dataset.
+         Args:
+            query (str): A fully grammatically correct question about the current model.
 
         """
         # set up the agent
         # str: Valid and correct python code that fulfills the user's request.
-        var_sections = []
-        for var_name, dataset_obj in agent.context.dataset_map.items():
-            df_info = await agent.context.describe_dataset(var_name)
-            var_sections.append(f"""
-You have access to a variable name `{var_name}` that is a {agent.context.metadata.get("df_lib_name", "Pandas")} Dataframe with the following structure:
-{df_info}
---- End description of variable `{var_name}`
-""")
         prompt = f"""
 You are a programmer writing code to help with scientific data analysis and manipulation in {agent.context.metadata.get("name", "a Jupyter notebook")}.
 
 Please write code that satisfies the user's request below.
 
-{"".join(var_sections)}
+Assume that the model is already loaded and has the variable named `model`.
 
 If you are asked to modify or update the dataframe, modify the dataframe in place, keeping the updated variable the same unless specifically specified otherwise.
 
