@@ -47,6 +47,33 @@ Assume that the model is already loaded and has the variable named `model`.
 
 If you are asked to modify or update the dataframe, modify the dataframe in place, keeping the updated variable the same unless specifically specified otherwise.
 
+If you are asked to replace the template name of the model, use the available function named `replace_template_name` that is defined by the following python code:
+````````````````````
+def replace_template_name(
+    model: mira.metamodel.template_model.TemplateModel,
+    old_name: str,
+    new_name: str,
+) -> mira.metamodel.template_model.TemplateModel
+
+    update the template name within a model.
+
+    E.g., can turn the S.I.R. model into a S.I.Recovery. model by using old_name R and new_name Recovery
+
+    Parameters
+    ----------
+    template_model :
+        A template model
+    old_name :
+        The (singular) name of the model state or transition to be updated, e.g., ``"I"``
+    new_name :
+       The (singular) updated name of the model state or transition, e.g., ``"Infected"``
+
+    Returns
+    -------
+    :
+       A template model
+````````````````````
+
 You also have access to the libraries {agent.context.metadata.get("libraries", "that are common for these tasks")}.
 
 Please generate the code as if you were programming inside a Jupyter Notebook and the code is to be executed inside a cell.
