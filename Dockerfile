@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# FROM ghcr.io/darpa-askem/askem-julia:latest AS JULIA_BASE_IMAGE
-=======
 FROM ghcr.io/darpa-askem/askem-julia:3.0.0 AS JULIA_BASE_IMAGE
->>>>>>> 0797cf131061bf624db079b7887b908b1aa4a895
 
 # FROM python:3.10
 FROM docker-hub.uncharted.software/library/python:3.10
