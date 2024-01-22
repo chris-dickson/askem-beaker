@@ -32,6 +32,9 @@ class MiraModelEditContext(BaseContext):
         self.reset()
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
 
+    def reset(self):
+        pass
+        
     async def setup(self, config, parent_header):
         self.config = config
         item_id = config["id"]
