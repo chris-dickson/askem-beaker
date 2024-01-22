@@ -46,4 +46,3 @@ WORKDIR /home/jupyter
 RUN /usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so -e 'using IJulia; IJulia.installkernel("julia"; julia=`/usr/local/julia/bin/julia -J /home/jupyter/.julia/environments/askem/ASKEM-Sysimage.so --threads=4`)'
 
 CMD ["python", "-m", "beaker_kernel.server.main", "--ip", "0.0.0.0"]
-
