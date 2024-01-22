@@ -55,6 +55,47 @@ class MiraModelEditAgent(BaseAgent):
             }
         )
 
+    @tool()
+    async def replace_state_name(self, template_name: str, old_name: str, new_name: str, model: str, agent: AgentRef):
+        """
+        This tool is used when a user wants to rename a state name within a template that is part of a model.
+
+        Args:
+            model (str): The variable name identifier of the model. If not known or specified, the default value of `model` should be used.
+            template_name (str): the template within the model where these changes will be made
+            old_name (str): The old/existing name of the state as it exists in the model before changing.
+            new_name (str): The name that the state should be changed to.
+        """
+        code = agent.context.get_code("replace_state_name", {"model": model, "template_name": template_name, "old_name": old_name, "new_name": new_name})
+        return json.dumps(
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
+    async def add_template(self, name: str, subject: str, outcome: str, expr: str, model: str, agent: AgentRef):
+        """
+        This tool is used when a user wants to add a new transition to a model.
+
+        Args:
+            model (str): The variable name identifier of the model. If not known or specified, the default value of `model` should be used.
+            subject (str): The state that is the source of the new transition.
+            outcome (str): the state that the new transition outputs to.
+            expr (str): the mathematical rate law for the transition.
+            name (str): the name of the transition
+        """
+        code = agent.context.get_code("add_template", {"model": model, "subject": subject, "outcome": outcome, "expr": expr, name: "name"})
+        return json.dumps(
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
 
 
 #    @tool()

@@ -65,3 +65,44 @@ class MiraModelEditContext(BaseContext):
             },
         )
 
+    @intercept()
+    async def replace_state_name(self, message):
+        content = message.content
+
+        model = content.get("model")
+        template_name  = content.get("template_name")
+        old_name  = content.get("old_name")
+        new_name = content.get("new_name")
+
+        self.beaker_kernel.send_response(
+            "iopub",
+            "replace_state_name",
+            {
+                "model": model,
+                "template_name": template_name,
+                "old_name": old_name,
+                "new_name": new_name
+            },
+        )
+
+    @intercept()
+    async def add_template(self, message):
+        content = message.content
+
+        model = content.get("model")
+        subject  = content.get("subject")
+        outcome  = content.get("outcome")
+        expr = content.get("expr")
+        name = content.get("name")
+
+        self.beaker_kernel.send_response(
+            "iopub",
+            "add_template",
+            {
+                "model": model,
+                "subject": subject,
+                "outcome": outcome,
+                "expr": expr,
+                "name": name
+            },
+        )
