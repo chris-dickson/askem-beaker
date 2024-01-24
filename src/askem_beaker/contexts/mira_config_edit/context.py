@@ -54,6 +54,7 @@ class MiraConfigEditContext(BaseContext):
         meta_url = f"{os.environ['DATA_SERVICE_URL']}/model_configurations/{self.config_id}"
         logger.error(f"Meta url: {meta_url}")
         self.configuration = requests.get(meta_url).json()
+        logger.error(f"Succeeded in fetching model configuration, proceeding.")
         self.amr = self.configuration.get("configuration")
         self.original_amr = copy.deepcopy(self.amr)
         if self.amr:
@@ -86,4 +87,33 @@ class MiraConfigEditContext(BaseContext):
                 "iopub", "model_preview", content, parent_header=parent_header
             )
         except Exception as e:
-            raise        
+            raise
+
+    @intercept()
+    async def save_model_config_request(self, message):
+        '''
+        Updates the model configuration in place.
+        '''
+        content = message.content
+
+        new_model: dict = (
+            await self.evaluate(
+                f"template_model_to_petrinet_json({self.var_name})"
+            )
+        )["return"]
+
+        model_config = self.configuration
+        model_config["configuration"] = new_model
+
+        create_req = requests.put(
+            f"{os.environ['DATA_SERVICE_URL']}/model_configurations/{self.config_id}", json=model_config
+        )
+
+        if create_req.status_code == 200:
+            logger.error(f"Successfuly updated model config {self.config_id}")
+        response_id = create_req.json()["id"]
+
+        content = {"model_configuration_id": response_id}
+        self.beaker_kernel.send_response(
+            "iopub", "save_model_response", content, parent_header=message.header
+        )
