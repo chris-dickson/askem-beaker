@@ -6,6 +6,7 @@ import os
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 from beaker_kernel.lib.context import BaseContext
 from beaker_kernel.lib.utils import intercept
@@ -51,9 +52,12 @@ class MiraConfigEditContext(BaseContext):
 
     async def set_model_config(self, item_id, agent=None, parent_header={}):
         self.config_id = item_id
-        meta_url = f"{os.environ['DATA_SERVICE_URL']}/model_configurations/{self.config_id}"
+        meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations/{self.config_id}"
         logger.error(f"Meta url: {meta_url}")
-        self.configuration = requests.get(meta_url).json()
+        self.configuration = requests.get(meta_url, 
+                                          auth=(os.environ['HMI_SERVER_USER'],
+                                                os.environ['HMI_SERVER_PASSWORD'])
+                                                ).json()
         logger.error(f"Succeeded in fetching model configuration, proceeding.")
         self.amr = self.configuration.get("configuration")
         self.original_amr = copy.deepcopy(self.amr)
@@ -106,7 +110,8 @@ class MiraConfigEditContext(BaseContext):
         model_config["configuration"] = new_model
 
         create_req = requests.put(
-            f"{os.environ['DATA_SERVICE_URL']}/model_configurations/{self.config_id}", json=model_config
+            f"{os.environ['HMI_SERVER_URL']}/model-configurations/{self.config_id}", json=model_config,
+                auth =(os.environ['HMI_SERVER_USER'], os.environ['HMI_SERVER_PASSWORD'])
         )
 
         if create_req.status_code == 200:
