@@ -58,6 +58,7 @@ class MiraModelContext(BaseContext):
             self.configuration = requests.get(meta_url, auth=self.auth.requests_auth()).json()
             self.model_id = self.configuration.get("model_id")
             self.amr = self.configuration.get("configuration")
+            self.schema_name = self.amr.get("header",{}).get("schema_name","petrinet")
         self.original_amr = copy.deepcopy(self.amr)
         if self.amr:
             await self.load_mira()
@@ -66,7 +67,7 @@ class MiraModelContext(BaseContext):
         await self.send_mira_preview_message(parent_header=parent_header)
 
     async def load_mira(self):
-        model_url = f"{os.environ['DATA_SERVICE_URL']}/models/{self.model_id}"
+        model_url = f"{os.environ['HMI_SERVER_URL']}/models/{self.model_id}"
         command = "\n".join(
             [
                 self.get_code("setup"),
@@ -113,7 +114,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         # Update the local dataframe to match what's in the shell.
         # This will be factored out when we switch around to allow using multiple runtimes.
         amr = (
-            await self.evaluate(self.get_code("model_to_json", {"var_name": self.var_name}))
+            await self.evaluate(self.get_code("model_to_json", {"var_name": self.var_name, "schema_name": self.schema_name}))
         )["return"]
         return json.dumps(amr, indent=2)
 
