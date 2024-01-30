@@ -46,6 +46,7 @@ Please write code that satisfies the user's request below.
 You have access to a variable name `model` that is a Petrinet model with the following structure:
 {await agent.context.model_structure()}
 
+The model has the following schema name: {agent.context.schema_name}.
 
 If you are asked to modify or update the model, modify the model in place, keeping the updated variable to still be named `model`.
 You have access to the MIRA libraries.
@@ -95,7 +96,8 @@ def stratify(
     structure :
         An iterable of pairs corresponding to a directed network structure
         where each of the pairs has two strata. If none given, will assume a complete
-        network structure. If no structure is necessary, pass an empty list.
+        network structure. If no structure is necessary, pass an empty list. If the schema_name is 'regnet'
+        you must ALWAYS pass an empty list to this argument.
     directed :
         Should the reverse direction conversions be added based on the given structure?
     conversion_cls :

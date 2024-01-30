@@ -203,6 +203,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
 
         model_name = content.get("model_name", "model")
         stratify_args = content.get("stratify_args", None)
+        logger.error(f"Stratify args: {stratify_args}")
         if stratify_args is None:
             # Error
             logger.error("stratify_args must be set on stratify requests.")
@@ -217,6 +218,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         stratify_code = self.get_code("stratify", {
             "var_name": model_name,
             "stratify_kwargs": repr(stratify_args),
+            "schema_name": self.schema_name
         })
         stratify_result = await self.execute(stratify_code)
 
