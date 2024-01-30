@@ -137,10 +137,15 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
 
         new_name = content.get("name")
 
+        if self.schema_name == "regnet":
+            unloader = f"AMRRegNetModel(Model({self.var_name})).to_json()"
+        elif self.schema_name == "stockflow":
+            unloader = f"template_model_to_stockflow_json({self.var_name})"
+        else:
+            unloader = f"template_model_to_petrinet_json({self.var_name})"
+            
         new_model: dict = (
-            await self.evaluate(
-                f"template_model_to_petrinet_json({self.var_name})"
-            )
+            await self.evaluate(unloader)
         )["return"]
 
         original_name = new_model.get("name", "None")
@@ -203,7 +208,6 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
 
         model_name = content.get("model_name", "model")
         stratify_args = content.get("stratify_args", None)
-        logger.error(f"Stratify args: {stratify_args}")
         if stratify_args is None:
             # Error
             logger.error("stratify_args must be set on stratify requests.")
