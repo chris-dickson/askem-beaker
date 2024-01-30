@@ -218,7 +218,7 @@ Statistics:
         new_name = content.get("name")
         filename = content.get("filename", None)
         var_name = content.get("var_name", "df")
-        dataservice_url = os.environ["DATA_SERVICE_URL"]
+        dataservice_url = os.environ["HMI_SERVER_URL"]
 
         if filename is None:
             filename = "dataset.csv"
