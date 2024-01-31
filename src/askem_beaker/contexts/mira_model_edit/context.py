@@ -69,6 +69,21 @@ class MiraModelEditContext(BaseContext):
             raise Exception(f"Model '{item_id}' not found.")
         await self.send_mira_preview_message(parent_header=parent_header)
 
+    async def load_mira(self):
+        model_url = f"{os.environ['DATA_SERVICE_URL']}/models/{self.model_id}"
+        command = "\n".join(
+            [
+                self.get_code("setup"),
+                self.get_code("load_model", {
+                    "var_name": self.var_name,
+                    "model_url": model_url,
+                    "auth_header": self.auth.auth_header(),
+                }),
+            ]
+        )
+        print(f"Running command:\n-------\n{command}\n---------")
+        await self.execute(command)
+
     async def send_mira_preview_message(
         self, server=None, target_stream=None, data=None, parent_header={}
     ):
