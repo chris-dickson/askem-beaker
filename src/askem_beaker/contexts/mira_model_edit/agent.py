@@ -76,7 +76,7 @@ class MiraModelEditAgent(BaseAgent):
         )
 
     @tool()
-    async def add_template(self, name: str, subject: str, outcome: str, expr: str, model: str, agent: AgentRef):
+    async def add_template(self, name: str, subject: str, outcome: str, expr: str, model: str, agent: AgentRef, loop: LoopControllerRef):
         """
         This tool is used when a user wants to add a new transition to a model.
 
@@ -90,16 +90,16 @@ class MiraModelEditAgent(BaseAgent):
         logger.error("Agent.py --------------  Add template request:")
 
         code = agent.context.get_code("add_template", {"model": model, "subject": subject, "outcome": outcome, "expr": expr, name: "name"})
-        content = {"language": "python3", "code": code.strip(),}      
+        content = {"language": "python3", "code": code.strip(),}
         # parent_header = self.thought_handler.parent_header <---- is not accessible as i thought
 
         # self.context.beaker_kernel.send_response( <-- Sends message fine but would need the parent_header
         #     "iopub",
-        #     "code_cell", 
+        #     "code_cell",
         #     content,
         #     parent_header=???
         # )
-
+        loop.set_state(loop.STOP_SUCCESS)
         return json.dumps( # <--- Is this returning to archytas? Why does this action not mean it sends a response with code_cell
             {
                 "action": "code_cell",
