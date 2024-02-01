@@ -28,8 +28,8 @@ def add_observable(model, new_id: str, new_name: str, new_expression: str):
     return tm
 
 model = add_observable(
-    model={{ model|default("model") }}, 
-    new_id='{{ new_id|default(NEW_ID) }}', 
-    new_name='{{ new_name|default(NEW_NAME) }}', 
-    new_expression='{{ new_expression|default(NEW_EXPRESSION) }}'
+    {{ model|default("model") }}, 
+    "{{ new_id|default(NEW_ID) }}", 
+    "{{ new_name|default(NEW_NAME) }}", 
+    "{{ new_expression|default(NEW_EXPRESSION) }}"
 )

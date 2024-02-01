@@ -277,3 +277,25 @@ class MiraModelEditContext(BaseContext):
             "iopub", "add_observable_response", content, parent_header=message.header
         )
         await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def remove_observable_request(self, message):
+        content = message.content
+
+        model = content.get("model")
+        remove_id  = content.get("remove_id")
+
+        code = self.get_code("remove_observable", {
+            "model": model,
+            "remove_id": remove_id
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "remove_observable_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
