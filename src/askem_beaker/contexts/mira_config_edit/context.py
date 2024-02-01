@@ -102,7 +102,7 @@ class MiraConfigEditContext(BaseContext):
         content = message.content
 
         if self.schema_name == "regnet":
-            unloader = f"AMRRegNetModel(Model({self.var_name})).to_json()"
+            unloader = f"template_model_to_regnet_json({self.var_name})"
         elif self.schema_name == "stockflow":
             unloader = f"template_model_to_stockflow_json({self.var_name})"
         else:

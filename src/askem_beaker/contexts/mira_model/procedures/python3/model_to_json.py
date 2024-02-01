@@ -3,9 +3,8 @@ if "{{ schema_name }}" == "petrinet":
     template_model_to_petrinet_json({{ var_name|default("model") }})
 
 if "{{ schema_name }}" == "regnet":
-    from mira.modeling import Model
-    from mira.modeling.amr.regnet import AMRRegNetModel
-    AMRRegNetModel(Model({{ var_name|default("model") }})).to_json()
+    from mira.modeling.amr.regnet import template_model_to_regnet_json
+    template_model_to_regnet_json({{ var_name|default("model") }})
 
 if "{{ schema_name }}" == "stockflow":
     from mira.modeling.amr.stockflow import template_model_to_stockflow_json
