@@ -46,11 +46,9 @@ class MiraModelEditContext(BaseContext):
         )
 
     async def post_execute(self, message):
-        logger.error("Context.py ---------- post_execute")
         await self.send_mira_preview_message(parent_header=message.parent_header)
 
     async def set_model(self, item_id, item_type="model", agent=None, parent_header={}):
-        logger.error("Context.py ---------- set_model")
         if item_type == "model":
             self.model_id = item_id
             self.config_id = "default"
@@ -90,7 +88,6 @@ class MiraModelEditContext(BaseContext):
     async def send_mira_preview_message(
         self, server=None, target_stream=None, data=None, parent_header={}
     ):
-        logger.error("Context.py ---------- send_mira_preview_message")
         try:
             preview = await self.evaluate(self.get_code("model_preview"), {"var_name": self.var_name})
             content = preview["return"]
@@ -102,7 +99,6 @@ class MiraModelEditContext(BaseContext):
 
     @intercept()
     async def reset_request(self, message):
-        logger.error("Context.py ------------ reset_request")
         content = message.content
 
         model_name = content.get("model_name", "model")
@@ -137,16 +133,6 @@ class MiraModelEditContext(BaseContext):
             "iopub", "code_cell", content
         )
 
-        # self.beaker_kernel.send_response(
-        #     "iopub",
-        #     "replace_template_name",
-        #     {
-        #         "model": model,
-        #         "old_name": old_name,
-        #         "new_name": new_name
-        #     },
-        # )
-
     @intercept()
     async def replace_state_name_request(self, message):
         content = message.content
@@ -162,16 +148,7 @@ class MiraModelEditContext(BaseContext):
             "iopub", "code_cell", content
         )
 
-        # self.beaker_kernel.send_response(
-        #     "iopub",
-        #     "replace_state_name",
-        #     {
-        #         "model": model,
-        #         "template_name": template_name,
-        #         "old_name": old_name,
-        #         "new_name": new_name
-        #     },
-        # )
+
 
     @intercept()
     async def add_template_request(self, message):
@@ -187,9 +164,4 @@ class MiraModelEditContext(BaseContext):
         content = {"language": "python3", "code": codeObj['code'].strip(),}       
         self.beaker_kernel.send_response(
             "iopub", "code_cell", content, parent_header=message.header
-        )
-
-        self.beaker_kernel.send_response(
-            "iopub",
-            "add_template", content, parent_header=message.header
         )
