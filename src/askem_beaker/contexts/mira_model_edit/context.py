@@ -195,3 +195,35 @@ class MiraModelEditContext(BaseContext):
             "iopub", "add_template_response", content, parent_header=message.header
         )
         await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_parameter_request(self, message):
+        content = message.content
+
+        model = content.get("model")
+        parameter_id  = content.get("parameter_id")
+        name  = content.get("name")
+        description = content.get("description")
+        value = content.get("value")
+        distribution = content.get("distribution")
+        units_mathml = content.get("units_mathml")
+
+        code = self.get_code("add_parameter", {
+            "model": model,
+            "parameter_id": parameter_id,
+            "name": name,
+            "description": description,
+            "value": value,
+            "distribution": distribution,
+            "units_mathml": units_mathml
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_parameter_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
