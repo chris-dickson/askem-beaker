@@ -89,7 +89,7 @@ class MiraModelEditAgent(BaseAgent):
             expr (str): the mathematical rate law for the transition.
             name (str): the name of the transition
         """
-        code = agent.context.get_code("add_template", {"model": model, "subject": subject, "outcome": outcome, "expr": expr, name: "name"})
+        code = agent.context.get_code("add_template", {"model": model, "subject": subject, "outcome": outcome, "expr": expr, "name": name})
         loop.set_state(loop.STOP_SUCCESS)
         return json.dumps( # <--- Is this returning to archytas? Why does this action not mean it sends a response with code_cell
             {
