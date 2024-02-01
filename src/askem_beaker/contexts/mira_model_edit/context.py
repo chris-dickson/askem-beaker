@@ -183,12 +183,9 @@ class MiraModelEditContext(BaseContext):
         expr = content.get("expr")
         name = content.get("name")
 
-
-        logger.error("Context.py --------------  Add template request:") # <--- This is not hit when sending an llm_request
-
         codeObj = self.agent.add_template(model,subject,outcome,expr,name,self.agent)
         content = {"language": "python3", "code": codeObj['code'].strip(),}       
-        self.beaker_kernel.send_response( # <--- This entire intercept isnt being hit so sending here seems wrong
+        self.beaker_kernel.send_response(
             "iopub", "code_cell", content, parent_header=message.header
         )
 
