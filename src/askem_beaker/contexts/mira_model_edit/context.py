@@ -125,13 +125,21 @@ class MiraModelEditContext(BaseContext):
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
-        # logger.error("Replace template name request")
+        code = self.get_code("replace_template_name", {
+            "model": model,
+            "old_name": old_name,
+            "new_name": new_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
 
-        codeObj = self.agent.replace_template_name(model,old_name,new_name)
-        content = {"language": "python3", "code": codeObj['code'].strip(),}       
         self.beaker_kernel.send_response(
-            "iopub", "code_cell", content
+            "iopub", "replace_template_name_response", content, parent_header=message.header
         )
+        await self.send_mira_preview_message(parent_header=message.header)
 
     @intercept()
     async def replace_state_name_request(self, message):
@@ -142,12 +150,22 @@ class MiraModelEditContext(BaseContext):
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
-        codeObj = self.agent.replace_state_name(model,template_name,old_name,new_name)
-        content = {"language": "python3", "code": codeObj['code'].strip(),}       
-        self.beaker_kernel.send_response(
-            "iopub", "code_cell", content
-        )
+        code = self.get_code("replace_state_name", {
+            "model": model,
+            "template_name": template_name,
+            "old_name": old_name,
+            "new_name": new_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
 
+        self.beaker_kernel.send_response(
+            "iopub", "replace_state_name_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
 
 
     @intercept()
@@ -160,8 +178,20 @@ class MiraModelEditContext(BaseContext):
         expr = content.get("expr")
         name = content.get("name")
 
-        codeObj = self.agent.add_template(model,subject,outcome,expr,name,self.agent)
-        content = {"language": "python3", "code": codeObj['code'].strip(),}       
+        code = self.get_code("add_template", {
+            "model": model,
+            "subject": subject,
+            "outcome": outcome,
+            "expr": expr,
+            "name": name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
         self.beaker_kernel.send_response(
-            "iopub", "code_cell", content, parent_header=message.header
+            "iopub", "add_template_response", content, parent_header=message.header
         )
+        await self.send_mira_preview_message(parent_header=message.header)
