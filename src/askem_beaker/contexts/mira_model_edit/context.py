@@ -251,3 +251,29 @@ class MiraModelEditContext(BaseContext):
             "iopub", "update_parameter_response", content, parent_header=message.header
         )
         await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_observable_request(self, message):
+        content = message.content
+
+        model = content.get("model")
+        new_id  = content.get("new_id")
+        new_name  = content.get("new_name")
+        new_expression  = content.get("new_expression")
+
+        code = self.get_code("add_observable", {
+            "model": model,
+            "new_id": new_id,
+            "new_name": new_name,
+            "new_expression": new_expression
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_observable_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)

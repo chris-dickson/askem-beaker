@@ -4,3 +4,4 @@ import sympy; import itertools; from mira.metamodel import *; from mira.modeling
 from mira.sources.amr import model_from_json; from mira.modeling.viz import GraphicalModel;
 from mira.metamodel.template_model import Parameter, Distribution , Observable, \
     Initial, Concept, TemplateModel
+from mira.metamodel.io import mathml_to_expression
