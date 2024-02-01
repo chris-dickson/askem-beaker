@@ -227,3 +227,27 @@ class MiraModelEditContext(BaseContext):
             "iopub", "add_parameter_response", content, parent_header=message.header
         )
         await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def update_parameter_request(self, message):
+        content = message.content
+
+        model = content.get("model")
+        updated_id  = content.get("updated_id")
+        replacement_value  = content.get("replacement_value")
+
+        code = self.get_code("update_parameter", {
+            "model": model,
+            "updated_id": updated_id,
+            "replacement_value": replacement_value
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "update_parameter_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
