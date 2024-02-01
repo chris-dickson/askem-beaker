@@ -37,7 +37,7 @@ class MiraModelEditAgent(BaseAgent):
         super().__init__(context, tools, **kwargs)
 
     @tool()
-    async def replace_template_name(self, old_name: str, new_name: str, model: str, agent: AgentRef):
+    async def replace_template_name(self, old_name: str, new_name: str, model: str, agent: AgentRef, loop: LoopControllerRef):
         """
         This tool is used when a user wants to rename a template that is part of a model.
 
@@ -47,6 +47,7 @@ class MiraModelEditAgent(BaseAgent):
             new_name (str): The name that the template should be changed to.
         """
         code = agent.context.get_code("replace_template_name", {"model": model, "old_name": old_name, "new_name": new_name})
+        loop.set_state(loop.STOP_SUCCESS)
         return json.dumps(
             {
                 "action": "code_cell",
@@ -56,7 +57,7 @@ class MiraModelEditAgent(BaseAgent):
         )
 
     @tool()
-    async def replace_state_name(self, template_name: str, old_name: str, new_name: str, model: str, agent: AgentRef):
+    async def replace_state_name(self, template_name: str, old_name: str, new_name: str, model: str, agent: AgentRef, loop: LoopControllerRef):
         """
         This tool is used when a user wants to rename a state name within a template that is part of a model.
 
@@ -67,6 +68,7 @@ class MiraModelEditAgent(BaseAgent):
             new_name (str): The name that the state should be changed to.
         """
         code = agent.context.get_code("replace_state_name", {"model": model, "template_name": template_name, "old_name": old_name, "new_name": new_name})
+        loop.set_state(loop.STOP_SUCCESS)
         return json.dumps(
             {
                 "action": "code_cell",
@@ -87,18 +89,7 @@ class MiraModelEditAgent(BaseAgent):
             expr (str): the mathematical rate law for the transition.
             name (str): the name of the transition
         """
-        logger.error("Agent.py --------------  Add template request:")
-
         code = agent.context.get_code("add_template", {"model": model, "subject": subject, "outcome": outcome, "expr": expr, name: "name"})
-        content = {"language": "python3", "code": code.strip(),}
-        # parent_header = self.thought_handler.parent_header <---- is not accessible as i thought
-
-        # self.context.beaker_kernel.send_response( <-- Sends message fine but would need the parent_header
-        #     "iopub",
-        #     "code_cell",
-        #     content,
-        #     parent_header=???
-        # )
         loop.set_state(loop.STOP_SUCCESS)
         return json.dumps( # <--- Is this returning to archytas? Why does this action not mean it sends a response with code_cell
             {
