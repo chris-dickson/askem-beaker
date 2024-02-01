@@ -34,11 +34,9 @@ class MiraModelEditContext(BaseContext):
         self.reset()
         self.auth = get_auth()
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
-
-    def reset(self):
-        pass
-        
+    
     async def setup(self, config, parent_header):
+        logger.error(f"performing setup...")
         self.config = config
         item_id = config["id"]
         item_type = config.get("type", "model")
@@ -48,9 +46,11 @@ class MiraModelEditContext(BaseContext):
         )
 
     async def post_execute(self, message):
+        logger.error("Context.py ---------- post_execute")
         await self.send_mira_preview_message(parent_header=message.parent_header)
 
     async def set_model(self, item_id, item_type="model", agent=None, parent_header={}):
+        logger.error("Context.py ---------- set_model")
         if item_type == "model":
             self.model_id = item_id
             self.config_id = "default"
@@ -84,9 +84,13 @@ class MiraModelEditContext(BaseContext):
         print(f"Running command:\n-------\n{command}\n---------")
         await self.execute(command)
 
+    def reset(self):
+        self.model_id = None
+
     async def send_mira_preview_message(
         self, server=None, target_stream=None, data=None, parent_header={}
     ):
+        logger.error("Context.py ---------- send_mira_preview_message")
         try:
             preview = await self.evaluate(self.get_code("model_preview"), {"var_name": self.var_name})
             content = preview["return"]
@@ -98,6 +102,7 @@ class MiraModelEditContext(BaseContext):
 
     @intercept()
     async def reset_request(self, message):
+        logger.error("Context.py ------------ reset_request")
         content = message.content
 
         model_name = content.get("model_name", "model")
@@ -117,25 +122,33 @@ class MiraModelEditContext(BaseContext):
         await self.send_mira_preview_message(parent_header=message.header)
 
     @intercept()
-    async def replace_template_name(self, message):
+    async def replace_template_name_request(self, message):
         content = message.content
 
         model = content.get("model")
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
+        # logger.error("Replace template name request")
+
+        codeObj = self.agent.replace_template_name(model,old_name,new_name)
+        content = {"language": "python3", "code": codeObj['code'].strip(),}       
         self.beaker_kernel.send_response(
-            "iopub",
-            "replace_template_name",
-            {
-                "model": model,
-                "old_name": old_name,
-                "new_name": new_name
-            },
+            "iopub", "code_cell", content
         )
 
+        # self.beaker_kernel.send_response(
+        #     "iopub",
+        #     "replace_template_name",
+        #     {
+        #         "model": model,
+        #         "old_name": old_name,
+        #         "new_name": new_name
+        #     },
+        # )
+
     @intercept()
-    async def replace_state_name(self, message):
+    async def replace_state_name_request(self, message):
         content = message.content
 
         model = content.get("model")
@@ -143,19 +156,25 @@ class MiraModelEditContext(BaseContext):
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
+        codeObj = self.agent.replace_state_name(model,template_name,old_name,new_name)
+        content = {"language": "python3", "code": codeObj['code'].strip(),}       
         self.beaker_kernel.send_response(
-            "iopub",
-            "replace_state_name",
-            {
-                "model": model,
-                "template_name": template_name,
-                "old_name": old_name,
-                "new_name": new_name
-            },
+            "iopub", "code_cell", content
         )
 
+        # self.beaker_kernel.send_response(
+        #     "iopub",
+        #     "replace_state_name",
+        #     {
+        #         "model": model,
+        #         "template_name": template_name,
+        #         "old_name": old_name,
+        #         "new_name": new_name
+        #     },
+        # )
+
     @intercept()
-    async def add_template(self, message):
+    async def add_template_request(self, message):
         content = message.content
 
         model = content.get("model")
@@ -164,14 +183,16 @@ class MiraModelEditContext(BaseContext):
         expr = content.get("expr")
         name = content.get("name")
 
+
+        logger.error("Context.py --------------  Add template request:") # <--- This is not hit when sending an llm_request
+
+        codeObj = self.agent.add_template(model,subject,outcome,expr,name,self.agent)
+        content = {"language": "python3", "code": codeObj['code'].strip(),}       
+        self.beaker_kernel.send_response( # <--- This entire intercept isnt being hit so sending here seems wrong
+            "iopub", "code_cell", content, parent_header=message.header
+        )
+
         self.beaker_kernel.send_response(
             "iopub",
-            "add_template",
-            {
-                "model": model,
-                "subject": subject,
-                "outcome": outcome,
-                "expr": expr,
-                "name": name
-            },
+            "add_template", content, parent_header=message.header
         )
