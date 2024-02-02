@@ -36,7 +36,7 @@ class MiraModelEditContext(BaseContext):
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
     
     async def setup(self, config, parent_header):
-        logger.error(f"performing setup...")
+        logger.debug(f"performing setup...")
         self.config = config
         item_id = config["id"]
         item_type = config.get("type", "model")

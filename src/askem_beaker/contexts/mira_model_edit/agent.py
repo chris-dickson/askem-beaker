@@ -91,7 +91,7 @@ class MiraModelEditAgent(BaseAgent):
         """
         code = agent.context.get_code("add_template", {"model": model, "subject": subject, "outcome": outcome, "expr": expr, "name": name})
         loop.set_state(loop.STOP_SUCCESS)
-        return json.dumps( # <--- Is this returning to archytas? Why does this action not mean it sends a response with code_cell
+        return json.dumps( 
             {
                 "action": "code_cell",
                 "language": "python3",
