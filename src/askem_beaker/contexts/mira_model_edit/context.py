@@ -36,7 +36,7 @@ class MiraModelEditContext(BaseContext):
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
     
     async def setup(self, config, parent_header):
-        logger.error(f"performing setup...")
+        logger.debug(f"performing setup...")
         self.config = config
         item_id = config["id"]
         item_type = config.get("type", "model")
@@ -125,10 +125,8 @@ class MiraModelEditContext(BaseContext):
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
-        # logger.error("Replace template name request")
-
-        codeObj = self.agent.replace_template_name(model,old_name,new_name)
-        content = {"language": "python3", "code": codeObj['code'].strip(),}       
+        code_obj = self.agent.replace_template_name(model,old_name,new_name)
+        content = {"language": "python3", "code": code_obj['code'].strip(),}       
         self.beaker_kernel.send_response(
             "iopub", "code_cell", content
         )
@@ -142,8 +140,8 @@ class MiraModelEditContext(BaseContext):
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
-        codeObj = self.agent.replace_state_name(model,template_name,old_name,new_name)
-        content = {"language": "python3", "code": codeObj['code'].strip(),}       
+        code_obj = self.agent.replace_state_name(model,template_name,old_name,new_name)
+        content = {"language": "python3", "code": code_obj['code'].strip(),}       
         self.beaker_kernel.send_response(
             "iopub", "code_cell", content
         )
@@ -160,8 +158,8 @@ class MiraModelEditContext(BaseContext):
         expr = content.get("expr")
         name = content.get("name")
 
-        codeObj = self.agent.add_template(model,subject,outcome,expr,name,self.agent)
-        content = {"language": "python3", "code": codeObj['code'].strip(),}       
+        code_obj = self.agent.add_template(model,subject,outcome,expr,name,self.agent)
+        content = {"language": "python3", "code": code_obj['code'].strip(),}       
         self.beaker_kernel.send_response(
             "iopub", "code_cell", content, parent_header=message.header
         )
