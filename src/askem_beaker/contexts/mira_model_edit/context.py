@@ -173,8 +173,8 @@ class MiraModelEditContext(BaseContext):
         content = message.content
 
         subject_name  = content.get("subject_name")
-        outcome_name  = content.get("outcome_name")
         subject_initial_value = content.get("subject_initial_value")
+        outcome_name  = content.get("outcome_name")
         outcome_initial_value = content.get("outcome_initial_value")
         parameter_name = content.get("parameter_name")
         parameter_value = content.get("parameter_value")
@@ -274,6 +274,49 @@ class MiraModelEditContext(BaseContext):
         )
         await self.send_mira_preview_message(parent_header=message.header)
 
+    @intercept()
+    async def add_controlled_conversion_template_request(self, message):
+        content = message.content
+
+        subject_name  = content.get("subject_name")
+        subject_initial_value = content.get("subject_initial_value")
+        outcome_name  = content.get("outcome_name")
+        outcome_initial_value = content.get("outcome_initial_value")
+        concept_name = content.get("concept_name")
+        concept_initial_value = content.get("concept_initial_value")
+        parameter_name = content.get("parameter_name")
+        parameter_value = content.get("parameter_value")
+        parameter_units = content.get("parameter_units")
+        parameter_description = content.get("parameter_description")
+        template_expression = content.get("template_expression")
+        template_name = content.get("template_name")
+
+        code = self.get_code("add_controlled_conversion_template", {
+            "subject_name": subject_name,
+            "subject_value": subject_initial_value,
+            "outcome_name": outcome_name,
+            "outcome_value": outcome_initial_value,
+            "concept_name": concept_name,
+            "concept_value": concept_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+            "parameter_units": parameter_units,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_controlled_conversion_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+ 
 
 
     @intercept()
