@@ -49,7 +49,7 @@ class DatasetContext(BaseContext):
                 dataset_id = dataset_map_item["id"]
             else:
                 raise ValueError("Unable to parse dataset mapping")
-            meta_url = f"{os.environ['DATA_SERVICE_URL']}/datasets/{dataset_id}"
+            meta_url = f"{os.environ['HMI_SERVER_URL']}/datasets/{dataset_id}"
             dataset_info_req = requests.get(meta_url, auth=self.auth.requests_auth())
             if dataset_info_req.status_code == 404:
                 raise Exception(f"Dataset '{dataset_id}' not found.")
@@ -73,7 +73,7 @@ class DatasetContext(BaseContext):
         var_map = {}
         for var_name, df_obj in self.dataset_map.items():
             filename = df_obj["info"].get("fileNames", [])[0]
-            meta_url = f"{os.environ['DATA_SERVICE_URL']}/datasets/{df_obj['id']}"
+            meta_url = f"{os.environ['HMI_SERVER_URL']}/datasets/{df_obj['id']}"
             url = f"{meta_url}/download-url?filename={filename}"
             data_url_req = requests.get(
                 url=url,

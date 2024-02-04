@@ -50,11 +50,11 @@ class MiraModelContext(BaseContext):
         if item_type == "model":
             self.model_id = item_id
             self.config_id = "default"
-            meta_url = f"{os.environ['DATA_SERVICE_URL']}/models/{self.model_id}"
+            meta_url = f"{os.environ['HMI_SERVER_URL']}/models/{self.model_id}"
             self.amr = requests.get(meta_url, auth=self.auth.requests_auth()).json()
         elif item_type == "model_config":
             self.config_id = item_id
-            meta_url = f"{os.environ['DATA_SERVICE_URL']}/model_configurations/{self.config_id}"
+            meta_url = f"{os.environ['HMI_SERVER_URL']}/model_configurations/{self.config_id}"
             self.configuration = requests.get(meta_url, auth=self.auth.requests_auth()).json()
             self.model_id = self.configuration.get("model_id")
             self.amr = self.configuration.get("configuration")
@@ -172,7 +172,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
                 ] += f"\nfrom base configuration '{self.configuration.get('name')}' ({self.configuration.get('id')})"
 
         create_req = requests.post(
-            f"{os.environ['DATA_SERVICE_URL']}/models", json=new_model,
+            f"{os.environ['HMI_SERVER_URL']}/models", json=new_model,
             auth=self.auth.requests_auth(),
         )
         new_model_id = create_req.json()["id"]

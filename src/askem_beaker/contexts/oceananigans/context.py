@@ -69,7 +69,7 @@ not to redefine existing variables or redo a task the user has already done (unl
         result = await self.evaluate(
             self.get_code("save_data", 
                 {
-                    "dataservice_url": os.environ["DATA_SERVICE_URL"], 
+                    "dataservice_url": os.environ["HMI_SERVER_URL"], 
                     "name": content.get("name"),
                     "description": content.get("description", ""),
                     "filenames": content.get("filenames"),
