@@ -60,6 +60,7 @@ class MiraConfigEditContext(BaseContext):
                                                 ).json()
         logger.error(f"Succeeded in fetching model configuration, proceeding.")
         self.amr = self.configuration.get("configuration")
+        self.schema_name = self.amr.get("header",{}).get("schema_name","petrinet")
         self.original_amr = copy.deepcopy(self.amr)
         if self.amr:
             await self.load_mira()
@@ -100,10 +101,15 @@ class MiraConfigEditContext(BaseContext):
         '''
         content = message.content
 
+        if self.schema_name == "regnet":
+            unloader = f"template_model_to_regnet_json({self.var_name})"
+        elif self.schema_name == "stockflow":
+            unloader = f"template_model_to_stockflow_json({self.var_name})"
+        else:
+            unloader = f"template_model_to_petrinet_json({self.var_name})"
+            
         new_model: dict = (
-            await self.evaluate(
-                f"template_model_to_petrinet_json({self.var_name})"
-            )
+            await self.evaluate(unloader)
         )["return"]
 
         model_config = self.configuration

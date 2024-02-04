@@ -1,6 +1,7 @@
 from IPython.core.interactiveshell import InteractiveShell;
 from IPython.core import display_functions;
 from mira.modeling.amr.petrinet import template_model_to_petrinet_json
+from mira.modeling.viz import GraphicalModel;
 
 format_dict, md_dict = InteractiveShell.instance().display_formatter.format(GraphicalModel.for_jupyter(model))
 result = {
