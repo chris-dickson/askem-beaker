@@ -25,4 +25,4 @@ def replace_rate_law_sympy(model, transition_id: str, new_rate_law):
             template.rate_law = SympyExprStr(new_rate_law)
     return tm
 
-model = replace_rate_law_sympy(model, "{{ transition_id|default('transition_id') }}", "{{ new_rate_law|default('new_rate_law') }}")
+model = replace_rate_law_sympy(model, "{{ transition_id }}", "{{ new_rate_law }}")

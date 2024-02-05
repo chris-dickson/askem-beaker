@@ -8,4 +8,4 @@ def replace_template_name(model, old_name: str, new_name: str):
             template.name = new_name
     return model
 
-model = replace_template_name(model, '{{ old_name|default("old_name") }}', '{{ new_name|default("new_name") }}')
+model = replace_template_name(model, '{{ old_name }}', '{{ new_name }}')

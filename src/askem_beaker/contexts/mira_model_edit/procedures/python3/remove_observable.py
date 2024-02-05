@@ -20,5 +20,4 @@ def remove_observable(model, removed_id: str):
             tm.observables.pop(obs)
     return tm
 
-model = remove_observable(model,"{{ remove_id|default(REMOVE_ID) }}"
-)
+model = remove_observable(model,"{{ remove_id }}")

@@ -28,4 +28,4 @@ def replace_state_name(model, template_name: str, old_name: str, new_name: str):
     return model
 
 
-model = replace_state_name(model, '{{ template_name|default("template_name") }}', '{{ old_name|default("old_name") }}', '{{ new_name|default("new_name") }}')
+model = replace_state_name(model, '{{ template_name }}', '{{ old_name }}', '{{ new_name }}')

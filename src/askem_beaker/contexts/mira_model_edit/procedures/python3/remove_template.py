@@ -17,4 +17,4 @@ def remove_template(tm: TemplateModel, templateName) -> TemplateModel:
 
     return tm_new
 
-model = remove_template(model, "{{ template_name|default('template_name') }}")
+model = remove_template(model, "{{ template_name }}")

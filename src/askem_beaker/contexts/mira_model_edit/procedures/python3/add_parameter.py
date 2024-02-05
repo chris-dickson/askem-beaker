@@ -40,10 +40,10 @@ def add_parameter(
 
 model = add_parameter(
     model=model, 
-    parameter_id="{{ parameter_id|default(None) }}", 
-    name="{{ name|default(None) }}", 
-    description="{{ description|default(None) }}",
-    value={{ value|default(None) }},
-    distribution={{ distribution|default(None) }},
-    units_mathml={{ units_mathml|default(None) }}
+    parameter_id="{{ parameter_id }}", 
+    name="{{ name }}", 
+    description="{{ description }}",
+    value={{ value }},
+    distribution={{ distribution }},
+    units_mathml={{ units_mathml }}
 )
