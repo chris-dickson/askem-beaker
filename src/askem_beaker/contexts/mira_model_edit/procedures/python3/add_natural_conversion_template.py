@@ -3,7 +3,7 @@ outcome_concept = Concept(name = "{{ outcome_name }}")
 parameter_unit = Unit(expression = sympy.Symbol("{{ parameter_units }}"))
 
 parameters = {
-    "{{ parameter_name )}}": Parameter(name = "{{ parameter_name }}", value = {{ parameter_value }}, units = parameter_unit, description = "{{ parameter_description }}")
+    "{{ parameter_name }}": Parameter(name = "{{ parameter_name }}", value = {{ parameter_value }}, units = parameter_unit, description = "{{ parameter_description }}")
 }
 
 initials = { 
