@@ -463,7 +463,7 @@ class MiraModelEditContext(BaseContext):
         await self.send_mira_preview_message(parent_header=message.header)
 
     @intercept()
-    async def add_observable_request(self, message):
+    async def add_observable_template_request(self, message):
         content = message.content
 
         new_id  = content.get("new_id")
@@ -482,12 +482,12 @@ class MiraModelEditContext(BaseContext):
         }
 
         self.beaker_kernel.send_response(
-            "iopub", "add_observable_response", content, parent_header=message.header
+            "iopub", "add_observable_template_response", content, parent_header=message.header
         )
         await self.send_mira_preview_message(parent_header=message.header)
 
     @intercept()
-    async def remove_observable_request(self, message):
+    async def remove_observable_template_request(self, message):
         content = message.content
 
         remove_id  = content.get("remove_id")
@@ -502,7 +502,7 @@ class MiraModelEditContext(BaseContext):
         }
 
         self.beaker_kernel.send_response(
-            "iopub", "remove_observable_response", content, parent_header=message.header
+            "iopub", "remove_observable_template_response", content, parent_header=message.header
         )
         await self.send_mira_preview_message(parent_header=message.header)
 
