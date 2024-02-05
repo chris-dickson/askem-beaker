@@ -32,4 +32,4 @@ def update_parameter(model, updated_id: str, replacement_value=None):
     return tm
 
 
-model = update_parameter(model={{ model|default("model") }}, updated_id='{{ updated_id|default(update_ID) }}', replacement_value={{ replacement_value|default(None) }})
+model = update_parameter(model=model, updated_id='{{ updated_id|default(update_ID) }}', replacement_value={{ replacement_value|default(None) }})

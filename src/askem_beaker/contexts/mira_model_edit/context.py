@@ -121,12 +121,10 @@ class MiraModelEditContext(BaseContext):
     async def replace_template_name_request(self, message):
         content = message.content
 
-        model = content.get("model")
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
         code = self.get_code("replace_template_name", {
-            "model": model,
             "old_name": old_name,
             "new_name": new_name
         })
@@ -145,13 +143,11 @@ class MiraModelEditContext(BaseContext):
     async def replace_state_name_request(self, message):
         content = message.content
 
-        model = content.get("model")
         template_name  = content.get("template_name")
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
         code = self.get_code("replace_state_name", {
-            "model": model,
             "template_name": template_name,
             "old_name": old_name,
             "new_name": new_name
@@ -448,12 +444,10 @@ class MiraModelEditContext(BaseContext):
     async def update_parameter_request(self, message):
         content = message.content
 
-        model = content.get("model")
         updated_id  = content.get("updated_id")
         replacement_value  = content.get("replacement_value")
 
         code = self.get_code("update_parameter", {
-            "model": model,
             "updated_id": updated_id,
             "replacement_value": replacement_value
         })
