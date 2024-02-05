@@ -1,11 +1,11 @@
-def remove_template(tm: TemplateModel, templateName) -> TemplateModel:
+def remove_template(tm: TemplateModel, template_name) -> TemplateModel:
 
     # Create new template model,
     # skipping over templates with given names
     tm_new = copy.deepcopy(tm)
     tm_new.templates = []
     for t in tm.templates:
-        if t.name in templateName:
+        if t.name in template_name:
             continue
         tm_new.templates.append(t)
     
