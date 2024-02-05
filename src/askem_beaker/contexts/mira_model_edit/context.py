@@ -418,7 +418,6 @@ class MiraModelEditContext(BaseContext):
     async def add_parameter_request(self, message):
         content = message.content
 
-        model = content.get("model")
         parameter_id  = content.get("parameter_id")
         name  = content.get("name")
         description = content.get("description")
@@ -427,7 +426,6 @@ class MiraModelEditContext(BaseContext):
         units_mathml = content.get("units_mathml")
 
         code = self.get_code("add_parameter", {
-            "model": model,
             "parameter_id": parameter_id,
             "name": name,
             "description": description,

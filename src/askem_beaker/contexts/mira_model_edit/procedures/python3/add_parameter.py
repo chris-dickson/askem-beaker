@@ -39,8 +39,8 @@ def add_parameter(
     return tm
 
 model = add_parameter(
-    model={{ model|default("model") }}, 
-    parameter_id="{{ parameter_id|default(None) }}", 
+    model=model, 
+    parameter_id={{ parameter_id|default(None) }}, 
     name="{{ name|default(None) }}", 
     description="{{ description|default(None) }}",
     value={{ value|default(None) }},
