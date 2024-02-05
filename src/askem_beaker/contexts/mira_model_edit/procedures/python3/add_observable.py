@@ -28,7 +28,7 @@ def add_observable(model, new_id: str, new_name: str, new_expression: str):
     return tm
 
 model = add_observable(
-    {{ model|default("model") }}, 
+    model, 
     "{{ new_id|default(NEW_ID) }}", 
     "{{ new_name|default(NEW_NAME) }}", 
     "{{ new_expression|default(NEW_EXPRESSION) }}"

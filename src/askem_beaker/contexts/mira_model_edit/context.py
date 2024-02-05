@@ -474,13 +474,11 @@ class MiraModelEditContext(BaseContext):
     async def add_observable_request(self, message):
         content = message.content
 
-        model = content.get("model")
         new_id  = content.get("new_id")
         new_name  = content.get("new_name")
         new_expression  = content.get("new_expression")
 
         code = self.get_code("add_observable", {
-            "model": model,
             "new_id": new_id,
             "new_name": new_name,
             "new_expression": new_expression
@@ -500,11 +498,9 @@ class MiraModelEditContext(BaseContext):
     async def remove_observable_request(self, message):
         content = message.content
 
-        model = content.get("model")
         remove_id  = content.get("remove_id")
 
         code = self.get_code("remove_observable", {
-            "model": model,
             "remove_id": remove_id
         })
         result = await self.execute(code)
@@ -515,5 +511,28 @@ class MiraModelEditContext(BaseContext):
 
         self.beaker_kernel.send_response(
             "iopub", "remove_observable_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def replace_ratelaw_request(self, message):
+        content = message.content
+
+        transition_id  = content.get("transition_id")
+        new_rate_law  = content.get("new_rate_law")
+        
+        code = self.get_code("replace_ratelaw", {
+            "transition_id": transition_id,
+            "new_rate_law": new_rate_law
+        })
+
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "replace_ratelaw_response", content, parent_header=message.header
         )
         await self.send_mira_preview_message(parent_header=message.header)
