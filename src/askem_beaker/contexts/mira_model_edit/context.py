@@ -392,10 +392,28 @@ class MiraModelEditContext(BaseContext):
         )
         await self.send_mira_preview_message(parent_header=message.header)
 
+    @intercept()
+    async def remove_template_request(self, message):
+        content = message.content
+
+        template_name = content.get("template_name")
+
+        code = self.get_code("remove_template", {
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "remove_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
  
  
-
-
     @intercept()
     async def add_parameter_request(self, message):
         content = message.content
