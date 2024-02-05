@@ -510,11 +510,11 @@ class MiraModelEditContext(BaseContext):
     async def replace_ratelaw_request(self, message):
         content = message.content
 
-        transition_id  = content.get("transition_id")
+        template_name  = content.get("template_name")
         new_rate_law  = content.get("new_rate_law")
         
         code = self.get_code("replace_ratelaw", {
-            "transition_id": transition_id,
+            "template_name": template_name,
             "new_rate_law": new_rate_law
         })
 
