@@ -40,7 +40,7 @@ def add_parameter(
 
 model = add_parameter(
     model=model, 
-    parameter_id={{ parameter_id|default(None) }}, 
+    parameter_id="{{ parameter_id|default(None) }}", 
     name="{{ name|default(None) }}", 
     description="{{ description|default(None) }}",
     value={{ value|default(None) }},
