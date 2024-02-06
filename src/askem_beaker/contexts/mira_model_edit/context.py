@@ -121,45 +121,410 @@ class MiraModelEditContext(BaseContext):
     async def replace_template_name_request(self, message):
         content = message.content
 
-        model = content.get("model")
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
-        code_obj = self.agent.replace_template_name(model,old_name,new_name)
-        content = {"language": "python3", "code": code_obj['code'].strip(),}       
+        code = self.get_code("replace_template_name", {
+            "old_name": old_name,
+            "new_name": new_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
         self.beaker_kernel.send_response(
-            "iopub", "code_cell", content
+            "iopub", "replace_template_name_response", content, parent_header=message.header
         )
+        await self.send_mira_preview_message(parent_header=message.header)
 
     @intercept()
     async def replace_state_name_request(self, message):
         content = message.content
 
-        model = content.get("model")
         template_name  = content.get("template_name")
         old_name  = content.get("old_name")
         new_name = content.get("new_name")
 
-        code_obj = self.agent.replace_state_name(model,template_name,old_name,new_name)
-        content = {"language": "python3", "code": code_obj['code'].strip(),}       
-        self.beaker_kernel.send_response(
-            "iopub", "code_cell", content
-        )
+        code = self.get_code("replace_state_name", {
+            "template_name": template_name,
+            "old_name": old_name,
+            "new_name": new_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
 
+        self.beaker_kernel.send_response(
+            "iopub", "replace_state_name_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
 
 
     @intercept()
-    async def add_template_request(self, message):
+    async def add_natural_conversion_template_request(self, message):
         content = message.content
 
-        model = content.get("model")
-        subject  = content.get("subject")
-        outcome  = content.get("outcome")
-        expr = content.get("expr")
-        name = content.get("name")
+        subject_name  = content.get("subject_name")
+        subject_initial_value = content.get("subject_initial_value")
+        outcome_name  = content.get("outcome_name")
+        outcome_initial_value = content.get("outcome_initial_value")
+        parameter_name = content.get("parameter_name")
+        parameter_value = content.get("parameter_value")
+        parameter_units = content.get("parameter_units")
+        parameter_description = content.get("parameter_description")
+        template_expression = content.get("template_expression")
+        template_name = content.get("template_name")
 
-        code_obj = self.agent.add_template(model,subject,outcome,expr,name,self.agent)
-        content = {"language": "python3", "code": code_obj['code'].strip(),}       
+        code = self.get_code("add_natural_conversion_template", {
+            "subject_name": subject_name,
+            "subject_initial_value": subject_initial_value,
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+            "parameter_units": parameter_units,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
         self.beaker_kernel.send_response(
-            "iopub", "code_cell", content, parent_header=message.header
+            "iopub", "add_natural_conversion_template_response", content, parent_header=message.header
         )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_natural_production_template_request(self, message):
+        content = message.content
+
+        outcome_name  = content.get("outcome_name")
+        outcome_initial_value = content.get("outcome_initial_value")
+        parameter_name = content.get("parameter_name")
+        parameter_value = content.get("parameter_value")
+        parameter_units = content.get("parameter_units")
+        parameter_description = content.get("parameter_description")
+        template_expression = content.get("template_expression")
+        template_name = content.get("template_name")
+
+        code = self.get_code("add_natural_production_template", {
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+            "parameter_units": parameter_units,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_natural_production_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_natural_degradation_template_request(self, message):
+        content = message.content
+
+        subject_name  = content.get("subject_name")
+        subject_initial_value = content.get("subject_initial_value")
+        parameter_name = content.get("parameter_name")
+        parameter_value = content.get("parameter_value")
+        parameter_units = content.get("parameter_units")
+        parameter_description = content.get("parameter_description")
+        template_expression = content.get("template_expression")
+        template_name = content.get("template_name")
+
+        code = self.get_code("add_natural_degradation_template", {
+            "subject_name": subject_name,
+            "subject_initial_value": subject_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+            "parameter_units": parameter_units,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_natural_degradation_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_controlled_conversion_template_request(self, message):
+        content = message.content
+
+        subject_name  = content.get("subject_name")
+        subject_initial_value = content.get("subject_initial_value")
+        outcome_name  = content.get("outcome_name")
+        outcome_initial_value = content.get("outcome_initial_value")
+        controller_name = content.get("controller_name")
+        controller_initial_value = content.get("controller_initial_value")
+        parameter_name = content.get("parameter_name")
+        parameter_value = content.get("parameter_value")
+        parameter_units = content.get("parameter_units")
+        parameter_description = content.get("parameter_description")
+        template_expression = content.get("template_expression")
+        template_name = content.get("template_name")
+
+        code = self.get_code("add_controlled_conversion_template", {
+            "subject_name": subject_name,
+            "subject_initial_value": subject_initial_value,
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "controller_name": controller_name,
+            "controller_initial_value": controller_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+            "parameter_units": parameter_units,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_controlled_conversion_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_controlled_production_template_request(self, message):
+        content = message.content
+
+        outcome_name  = content.get("outcome_name")
+        outcome_initial_value = content.get("outcome_initial_value")
+        controller_name = content.get("controller_name")
+        controller_initial_value = content.get("controller_initial_value")
+        parameter_name = content.get("parameter_name")
+        parameter_value = content.get("parameter_value")
+        parameter_units = content.get("parameter_units")
+        parameter_description = content.get("parameter_description")
+        template_expression = content.get("template_expression")
+        template_name = content.get("template_name")
+
+        code = self.get_code("add_controlled_production_template", {
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "controller_name": controller_name,
+            "controller_initial_value": controller_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+            "parameter_units": parameter_units,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_controlled_production_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_controlled_degradation_template_request(self, message):
+        content = message.content
+
+        subject_name  = content.get("subject_name")
+        subject_initial_value = content.get("subject_initial_value")
+        controller_name = content.get("controller_name")
+        controller_initial_value = content.get("controller_initial_value")
+        parameter_name = content.get("parameter_name")
+        parameter_value = content.get("parameter_value")
+        parameter_units = content.get("parameter_units")
+        parameter_description = content.get("parameter_description")
+        template_expression = content.get("template_expression")
+        template_name = content.get("template_name")
+
+        code = self.get_code("add_controlled_degradation_template", {
+            "subject_name": subject_name,
+            "subject_initial_value": subject_initial_value,
+            "controller_name": controller_name,
+            "controller_initial_value": controller_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+            "parameter_units": parameter_units,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_controlled_degradation_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def remove_template_request(self, message):
+        content = message.content
+
+        template_name = content.get("template_name")
+
+        code = self.get_code("remove_template", {
+            "template_name": template_name
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "remove_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+ 
+ 
+    @intercept()
+    async def add_parameter_request(self, message):
+        content = message.content
+
+        parameter_id  = content.get("parameter_id")
+        name  = content.get("name")
+        description = content.get("description")
+        value = content.get("value")
+        distribution = content.get("distribution")
+        units_mathml = content.get("units_mathml")
+
+        code = self.get_code("add_parameter", {
+            "parameter_id": parameter_id,
+            "name": name,
+            "description": description,
+            "value": value,
+            "distribution": distribution,
+            "units_mathml": units_mathml
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_parameter_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def update_parameter_request(self, message):
+        content = message.content
+
+        updated_id  = content.get("updated_id")
+        replacement_value  = content.get("replacement_value")
+
+        code = self.get_code("update_parameter", {
+            "updated_id": updated_id,
+            "replacement_value": replacement_value
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "update_parameter_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def add_observable_template_request(self, message):
+        content = message.content
+
+        new_id  = content.get("new_id")
+        new_name  = content.get("new_name")
+        new_expression  = content.get("new_expression")
+
+        code = self.get_code("add_observable", {
+            "new_id": new_id,
+            "new_name": new_name,
+            "new_expression": new_expression
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "add_observable_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def remove_observable_template_request(self, message):
+        content = message.content
+
+        remove_id  = content.get("remove_id")
+
+        code = self.get_code("remove_observable", {
+            "remove_id": remove_id
+        })
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "remove_observable_template_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
+
+    @intercept()
+    async def replace_ratelaw_request(self, message):
+        content = message.content
+
+        template_name  = content.get("template_name")
+        new_rate_law  = content.get("new_rate_law")
+        
+        code = self.get_code("replace_ratelaw", {
+            "template_name": template_name,
+            "new_rate_law": new_rate_law
+        })
+
+        result = await self.execute(code)
+        content = {
+            "success": True,
+            "executed_code": result["parent"].content["code"],
+        }
+
+        self.beaker_kernel.send_response(
+            "iopub", "replace_ratelaw_response", content, parent_header=message.header
+        )
+        await self.send_mira_preview_message(parent_header=message.header)
