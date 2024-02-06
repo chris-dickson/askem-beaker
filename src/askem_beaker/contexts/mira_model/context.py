@@ -50,14 +50,15 @@ class MiraModelContext(BaseContext):
         if item_type == "model":
             self.model_id = item_id
             self.config_id = "default"
-            meta_url = f"{os.environ['DATA_SERVICE_URL']}/models/{self.model_id}"
+            meta_url = f"{os.environ['HMI_SERVER_URL']}/models/{self.model_id}"
             self.amr = requests.get(meta_url, auth=self.auth.requests_auth()).json()
         elif item_type == "model_config":
             self.config_id = item_id
-            meta_url = f"{os.environ['DATA_SERVICE_URL']}/model_configurations/{self.config_id}"
+            meta_url = f"{os.environ['HMI_SERVER_URL']}/model_configurations/{self.config_id}"
             self.configuration = requests.get(meta_url, auth=self.auth.requests_auth()).json()
             self.model_id = self.configuration.get("model_id")
             self.amr = self.configuration.get("configuration")
+            self.schema_name = self.amr.get("header",{}).get("schema_name","petrinet")
         self.original_amr = copy.deepcopy(self.amr)
         if self.amr:
             await self.load_mira()
@@ -66,7 +67,7 @@ class MiraModelContext(BaseContext):
         await self.send_mira_preview_message(parent_header=parent_header)
 
     async def load_mira(self):
-        model_url = f"{os.environ['DATA_SERVICE_URL']}/models/{self.model_id}"
+        model_url = f"{os.environ['HMI_SERVER_URL']}/models/{self.model_id}"
         command = "\n".join(
             [
                 self.get_code("setup"),
@@ -113,7 +114,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         # Update the local dataframe to match what's in the shell.
         # This will be factored out when we switch around to allow using multiple runtimes.
         amr = (
-            await self.evaluate(self.get_code("model_to_json", {"var_name": self.var_name}))
+            await self.evaluate(self.get_code("model_to_json", {"var_name": self.var_name, "schema_name": self.schema_name}))
         )["return"]
         return json.dumps(amr, indent=2)
 
@@ -136,10 +137,15 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
 
         new_name = content.get("name")
 
+        if self.schema_name == "regnet":
+            unloader = f"template_model_to_regnet_json({self.var_name})"
+        elif self.schema_name == "stockflow":
+            unloader = f"template_model_to_stockflow_json({self.var_name})"
+        else:
+            unloader = f"template_model_to_petrinet_json({self.var_name})"
+            
         new_model: dict = (
-            await self.evaluate(
-                f"template_model_to_petrinet_json({self.var_name})"
-            )
+            await self.evaluate(unloader)
         )["return"]
 
         original_name = new_model.get("name", "None")
@@ -166,7 +172,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
                 ] += f"\nfrom base configuration '{self.configuration.get('name')}' ({self.configuration.get('id')})"
 
         create_req = requests.post(
-            f"{os.environ['DATA_SERVICE_URL']}/models", json=new_model,
+            f"{os.environ['HMI_SERVER_URL']}/models", json=new_model,
             auth=self.auth.requests_auth(),
         )
         new_model_id = create_req.json()["id"]
@@ -216,6 +222,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         stratify_code = self.get_code("stratify", {
             "var_name": model_name,
             "stratify_kwargs": repr(stratify_args),
+            "schema_name": self.schema_name
         })
         stratify_result = await self.execute(stratify_code)
 

@@ -35,7 +35,7 @@ class DecapodesContext(BaseContext):
         self.config = config
 
         def fetch_model(model_id):
-            meta_url = f"{os.environ['DATA_SERVICE_URL']}/models/{model_id}"
+            meta_url = f"{os.environ['HMI_SERVER_URL']}/models/{model_id}"
             response = requests.get(meta_url, auth=self.auth.requests_auth())
             if response.status_code >= 300:
                 raise Exception(f"Failed to retrieve model {model_id} from server returning {response.status_code}")
@@ -215,7 +215,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         }
 
         create_req = requests.post(
-            f"{os.environ['DATA_SERVICE_URL']}/models", json=amr,
+            f"{os.environ['HMI_SERVER_URL']}/models", json=amr,
             auth=self.auth.requests_auth()
         )
         new_model_id = create_req.json()["id"]
