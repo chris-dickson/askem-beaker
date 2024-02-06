@@ -10,7 +10,7 @@ parameters = {
 initials = { 
     "{{subject_name}}": Initial(concept = subject_concept, expression = sympy.Float({{subject_initial_value}})),
     "{{outcome_name}}": Initial(concept = outcome_concept, expression = sympy.Float({{outcome_initial_value}})),
-    "{{controller_name}}": Initial(concept = controller_concept, expression = sympy.Float({{controller_concept}}))
+    "{{controller_name}}": Initial(concept = controller_concept, expression = sympy.Float({{controller_initial_value}}))
 }
 
 model = model.add_template(
