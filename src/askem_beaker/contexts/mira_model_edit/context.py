@@ -163,7 +163,6 @@ class MiraModelEditContext(BaseContext):
 		)
 		await self.send_mira_preview_message(parent_header=message.header)
 
-
 	@intercept()
 	async def add_natural_conversion_template_request(self, message):
 		content = message.content
@@ -407,8 +406,6 @@ class MiraModelEditContext(BaseContext):
 			"iopub", "remove_template_response", content, parent_header=message.header
 		)
 		await self.send_mira_preview_message(parent_header=message.header)
-
-
 
 	@intercept()
 	async def add_parameter_request(self, message):
