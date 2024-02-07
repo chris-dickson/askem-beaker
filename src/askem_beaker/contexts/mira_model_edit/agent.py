@@ -37,16 +37,15 @@ class MiraModelEditAgent(BaseAgent):
         super().__init__(context, tools, **kwargs)
 
     @tool()
-    async def replace_template_name(self, old_name: str, new_name: str, model: str, agent: AgentRef, loop: LoopControllerRef):
+    async def replace_template_name(self, old_name: str, new_name: str, agent: AgentRef, loop: LoopControllerRef):
         """
         This tool is used when a user wants to rename a template that is part of a model.
 
         Args:
-            model (str): The variable name identifier of the model. If not known or specified, the default value of `model` should be used.
             old_name (str): The old/existing name of the template as it exists in the model before changing.
             new_name (str): The name that the template should be changed to.
         """
-        code = agent.context.get_code("replace_template_name", {"model": model, "old_name": old_name, "new_name": new_name})
+        code = agent.context.get_code("replace_template_name", {"old_name": old_name, "new_name": new_name})
         loop.set_state(loop.STOP_SUCCESS)
         return json.dumps(
             {
@@ -57,17 +56,35 @@ class MiraModelEditAgent(BaseAgent):
         )
 
     @tool()
-    async def replace_state_name(self, template_name: str, old_name: str, new_name: str, model: str, agent: AgentRef, loop: LoopControllerRef):
+    async def remove_template(self, template_name: str, agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to remove an existing template that is part of a model.
+
+        Args:
+            template_name (str): This is the name of the template that is to be removed.
+        """
+        code = agent.context.get_code("remove_template", {"template_name": template_name })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps(
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+
+    @tool()
+    async def replace_state_name(self, template_name: str, old_name: str, new_name: str, agent: AgentRef, loop: LoopControllerRef):
         """
         This tool is used when a user wants to rename a state name within a template that is part of a model.
 
         Args:
-            model (str): The variable name identifier of the model. If not known or specified, the default value of `model` should be used.
             template_name (str): the template within the model where these changes will be made
             old_name (str): The old/existing name of the state as it exists in the model before changing.
             new_name (str): The name that the state should be changed to.
         """
-        code = agent.context.get_code("replace_state_name", {"model": model, "template_name": template_name, "old_name": old_name, "new_name": new_name})
+        code = agent.context.get_code("replace_state_name", {"template_name": template_name, "old_name": old_name, "new_name": new_name})
         loop.set_state(loop.STOP_SUCCESS)
         return json.dumps(
             {
@@ -78,6 +95,44 @@ class MiraModelEditAgent(BaseAgent):
         )
   
     @tool()
+    async def add_observable(self, new_id: str, new_name: str, new_expression: str, agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to add an observable.
+
+        Args:
+            new_id (str): The new ID provided for the observable. If this is not provided the value for new_name should be used
+            new_name (str): The new name provided for the observable. If this is not provided for the new_id should be used.
+            new_expression (str): The expression that the observable represents.
+        """
+        code = agent.context.get_code("add_observable", {"new_id": new_id, "new_name": new_name, "new_expression": new_expression})
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps(
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+  
+    @tool()
+    async def remove_observable(self, remove_id: str, agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to remove an observable.
+
+        Args:
+            remove_id (str): The existing observable id to be removed.
+        """
+        code = agent.context.get_code("remove_observable", {"remove_id": remove_id })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps(
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
     async def add_natural_conversion_template(self,
         subject_name: str, 
         subject_initial_value: float,
@@ -85,7 +140,7 @@ class MiraModelEditAgent(BaseAgent):
         outcome_initial_value: float,
         parameter_name: str,
         parameter_units: str,
-        parameter_value: str,
+        parameter_value: float,
         parameter_description: str,
         template_expression: str,
         template_name: str,
@@ -105,7 +160,7 @@ class MiraModelEditAgent(BaseAgent):
             outcome_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
             parameter_name (str): the name of the parameter. 
             parameter_units (str): The units assosiated with the parameter. 
-            parameter_value (str): the value of the parameter provided by the user.
+            parameter_value (float): This is a numeric value provided by the user. If not known or not specified the default value of `1` should be used.
             parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
             template_expression (str): The mathematical rate law for the transition.
             template_name (str): the name of the transition.
@@ -142,7 +197,7 @@ class MiraModelEditAgent(BaseAgent):
         controller_initial_value: float,
         parameter_name: str,
         parameter_units: str,
-        parameter_value: str,
+        parameter_value: float,
         parameter_description: str,
         template_expression: str,
         template_name: str,
@@ -164,7 +219,7 @@ class MiraModelEditAgent(BaseAgent):
             controller_initial_value (float): The initial value of the controller.
             parameter_name (str): the name of the parameter.
             parameter_units (str): The units assosiated with the parameter.
-            parameter_value (str): the value of the parameter provided by the user.
+            parameter_value (float): This is a numeric value provided by the user. If not known or not specified the default value of `1` should be used.
             parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
             template_expression (str): The mathematical rate law for the transition.
             template_name (str): the name of the transition.
@@ -199,7 +254,7 @@ class MiraModelEditAgent(BaseAgent):
         outcome_initial_value: float,
         parameter_name: str,
         parameter_units: str,
-        parameter_value: str,
+        parameter_value: float,
         parameter_description: str,
         template_expression: str,
         template_name: str,
@@ -216,7 +271,7 @@ class MiraModelEditAgent(BaseAgent):
             outcome_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
             parameter_name (str): the name of the parameter.
             parameter_units (str): The units assosiated with the parameter.
-            parameter_value (str): the value of the parameter provided by the user.
+            parameter_value (float): This is a numeric value provided by the user. If not known or not specified the default value of `1` should be used.
             parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
             template_expression (str): The mathematical rate law for the transition.
             template_name (str): the name of the transition.
@@ -249,7 +304,7 @@ class MiraModelEditAgent(BaseAgent):
         controller_initial_value: float,
         parameter_name: str,
         parameter_units: str,
-        parameter_value: str,
+        parameter_value: float,
         parameter_description: str,
         template_expression: str,
         template_name: str,
@@ -268,7 +323,7 @@ class MiraModelEditAgent(BaseAgent):
             controller_initial_value (float): The initial value of the controller.
             parameter_name (str): the name of the parameter.
             parameter_units (str): The units assosiated with the parameter.
-            parameter_value (str): the value of the parameter provided by the user.
+            parameter_value (float): This is a numeric value provided by the user. If not known or not specified the default value of `1` should be used.
             parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
             template_expression (str): The mathematical rate law for the transition.
             template_name (str): the name of the transition.
@@ -301,7 +356,7 @@ class MiraModelEditAgent(BaseAgent):
         subject_initial_value: float,
         parameter_name: str,
         parameter_units: str,
-        parameter_value: str,
+        parameter_value: float,
         parameter_description: str,
         template_expression: str,
         template_name: str,
@@ -318,7 +373,7 @@ class MiraModelEditAgent(BaseAgent):
             subject_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
             parameter_name (str): the name of the parameter.
             parameter_units (str): The units assosiated with the parameter.
-            parameter_value (str): the value of the parameter provided by the user.
+            parameter_value (float): This is a numeric value provided by the user. If not known or not specified the default value of `1` should be used.
             parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
             template_expression (str): The mathematical rate law for the transition.
             template_name (str): the name of the transition.
@@ -351,7 +406,7 @@ class MiraModelEditAgent(BaseAgent):
         controller_initial_value: float,
         parameter_name: str,
         parameter_units: str,
-        parameter_value: str,
+        parameter_value: float,
         parameter_description: str,
         template_expression: str,
         template_name: str,
@@ -370,7 +425,7 @@ class MiraModelEditAgent(BaseAgent):
             controller_initial_value (float): The initial value of the controller.
             parameter_name (str): the name of the parameter.
             parameter_units (str): The units assosiated with the parameter.
-            parameter_value (str): the value of the parameter provided by the user.
+            parameter_value (float): This is a numeric value provided by the user. If not known or not specified the default value of `1` should be used.
             parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
             template_expression (str): The mathematical rate law for the transition.
             template_name (str): the name of the transition.
