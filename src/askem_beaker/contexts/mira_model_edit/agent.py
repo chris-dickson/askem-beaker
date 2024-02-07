@@ -93,7 +93,7 @@ class MiraModelEditAgent(BaseAgent):
         """
         This tool is used when a user wants to add a natural conversion to the model. 
         A natural conversion is a template that contains two states and a transition where one state is sending population to the transition and one state is recieving population from the transition.
-        The transition rate does not depend on any states.
+        The transition rate may only depend on the subject state.
         
         An example of this would be "Add a new transition from S to R with the name vaccine with the rate of v" 
         Where S is the subject state, R is the outcome state, vaccine is the template_name, and v is the template_expression.
@@ -308,7 +308,7 @@ class MiraModelEditAgent(BaseAgent):
         agent: AgentRef, loop: LoopControllerRef):
         """
         This tool is used when a user wants to add a natural degradation to the model. 
-        A natural degradation is a template that contains one state in which the population is leaving through one transition. The transition will only depend on its input state.
+        A natural degradation is a template that contains one state in which the population is leaving through one transition. The transition may only depend on the subject state.
 
         An example of this would be "Add a new transition from state S to transition rec with a rate of v."
         Where S is the subject state, rec is the template_name, and v is the template_expression.
