@@ -78,18 +78,298 @@ class MiraModelEditAgent(BaseAgent):
         )
 
     @tool()
-    async def add_template(self, name: str, subject: str, outcome: str, expr: str, model: str, agent: AgentRef, loop: LoopControllerRef):
+    async def add_natural_conversion_template(self,
+        subject_name: str, 
+        subject_initial_value: float,
+        outcome_name: str, 
+        outcome_initial_value: float,
+        parameter_name: str,
+        parameter_units: str,
+        parameter_value: str,
+        parameter_description: str,
+        template_expression: str,
+        template_name: str,
+        agent: AgentRef, loop: LoopControllerRef):
         """
-        This tool is used when a user wants to add a new transition to a model.
+        This tool is used when a user wants to add a natural conversion to the model. 
+        A natural conversion is a template that contains two states and a transition where one state is sending population to the transition and one state is recieving population from the transition.
+        The transition rate does not depend on any states.
 
         Args:
-            model (str): The variable name identifier of the model. If not known or specified, the default value of `model` should be used.
-            subject (str): The state that is the source of the new transition.
-            outcome (str): the state that the new transition outputs to.
-            expr (str): the mathematical rate law for the transition.
-            name (str): the name of the transition
+            subject_name (str): The state name that is the source of the new transition. This is the state population comes from.
+            subject_initial_value (float): The number assosiated with the subject state at its first step in time. If not known or not specified the default value of `1` should be used.
+            outcome_name (str): the state name that is the new transition's outputs. This is the state population moves to.
+            outcome_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
+            parameter_name (str): the name of the parameter. 
+            parameter_units (str): The units assosiated with the parameter. 
+            parameter_value (str): the value of the parameter provided by the user.
+            parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
+            template_expression (str): The mathematical rate law for the transition.
+            template_name (str): the name of the transition.
         """
-        code = agent.context.get_code("add_template", {"model": model, "subject": subject, "outcome": outcome, "expr": expr, "name": name})
+        
+        code = agent.context.get_code("add_natural_conversion_template", {
+            "subject_name": subject_name, 
+            "subject_initial_value": subject_initial_value,
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_units": parameter_units,
+            "parameter_value": parameter_value,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name  
+        })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps( 
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
+    async def add_controlled_conversion_template(self,
+        subject_name: str, 
+        subject_initial_value: float,
+        outcome_name: str, 
+        outcome_initial_value: float,
+        controller_name: str,
+        controller_initial_value: float,
+        parameter_name: str,
+        parameter_units: str,
+        parameter_value: str,
+        parameter_description: str,
+        template_expression: str,
+        template_name: str,
+        agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to add a controlled conversion to the model. 
+        A controlled conversion is a template that contains two states and a transition where one state is sending population to the transition and one state is recieving population from the transition.
+        This transition rate depends on a controller state. This controller state can be an existing or new state in the model.
+
+        Args:
+            subject_name (str): The state name that is the source of the new transition. This is the state population comes from.
+            subject_initial_value (float): The number assosiated with the subject state at its first step in time. If not known or not specified the default value of `1` should be used.
+            outcome_name (str): the state name that is the new transition's outputs. This is the state population moves to.
+            outcome_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
+            controller_name (str): The name of the controller state. This is the state that will impact the transition's rate.
+            controller_initial_value (float): The initial value of the controller.
+            parameter_name (str): the name of the parameter.
+            parameter_units (str): The units assosiated with the parameter.
+            parameter_value (str): the value of the parameter provided by the user.
+            parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
+            template_expression (str): The mathematical rate law for the transition.
+            template_name (str): the name of the transition.
+        """
+
+        code = agent.context.get_code("add_controlled_conversion_template", {
+            "subject_name": subject_name, 
+            "subject_initial_value": subject_initial_value,
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "controller_name": controller_name,
+            "controller_initial_value": controller_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_units": parameter_units,
+            "parameter_value": parameter_value,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name  
+        })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps( 
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
+    async def add_natural_production_template(self,
+        outcome_name: str, 
+        outcome_initial_value: float,
+        parameter_name: str,
+        parameter_units: str,
+        parameter_value: str,
+        parameter_description: str,
+        template_expression: str,
+        template_name: str,
+        agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to add a natural production to the model. 
+        A natural production is a template that contains one state which is recieving population by one transition. The transition will not depend on any state.
+
+        Args:
+            outcome_name (str): the state name that is the new transition's outputs. This is the state population moves to.
+            outcome_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
+            parameter_name (str): the name of the parameter.
+            parameter_units (str): The units assosiated with the parameter.
+            parameter_value (str): the value of the parameter provided by the user.
+            parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
+            template_expression (str): The mathematical rate law for the transition.
+            template_name (str): the name of the transition.
+        """
+
+        code = agent.context.get_code("add_natural_production_template", {
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_units": parameter_units,
+            "parameter_value": parameter_value,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name  
+        })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps( 
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
+    async def add_controlled_production_template(self,
+        outcome_name: str, 
+        outcome_initial_value: float,
+        controller_name: str,
+        controller_initial_value: float,
+        parameter_name: str,
+        parameter_units: str,
+        parameter_value: str,
+        parameter_description: str,
+        template_expression: str,
+        template_name: str,
+        agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to add a controlled production to the model. 
+        A controlled production is a template that contains one state which is recieving population by one transition. This transition rate depends on a controller state. This controller state can be an existing or new state in the model.
+
+        Args:
+            outcome_name (str): the state name that is the new transition's outputs. This is the state population moves to.
+            outcome_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
+            controller_name (str): The name of the controller state. This is the state that will impact the transition's rate.
+            controller_initial_value (float): The initial value of the controller.
+            parameter_name (str): the name of the parameter.
+            parameter_units (str): The units assosiated with the parameter.
+            parameter_value (str): the value of the parameter provided by the user.
+            parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
+            template_expression (str): The mathematical rate law for the transition.
+            template_name (str): the name of the transition.
+        """
+
+        code = agent.context.get_code("add_controlled_production_template", {
+            "outcome_name": outcome_name,
+            "outcome_initial_value": outcome_initial_value,
+            "controller_name": controller_name,
+            "controller_initial_value": controller_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_units": parameter_units,
+            "parameter_value": parameter_value,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name  
+        })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps( 
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
+    async def add_natural_degradation_template(self,
+        subject_name: str, 
+        subject_initial_value: float,
+        parameter_name: str,
+        parameter_units: str,
+        parameter_value: str,
+        parameter_description: str,
+        template_expression: str,
+        template_name: str,
+        agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to add a natural degradation to the model. 
+        A natural degradation is a template that contains one state in which the population is leaving through one transition. The transition will only depend on its input state.
+
+        Args:
+            subject_name (str): the state name that is the new transition's outputs. This is the state population moves to.
+            subject_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
+            parameter_name (str): the name of the parameter.
+            parameter_units (str): The units assosiated with the parameter.
+            parameter_value (str): the value of the parameter provided by the user.
+            parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
+            template_expression (str): The mathematical rate law for the transition.
+            template_name (str): the name of the transition.
+        """
+
+        code = agent.context.get_code("add_natural_degradation_template", {
+            "subject_name": subject_name,
+            "subject_initial_value": subject_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_units": parameter_units,
+            "parameter_value": parameter_value,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name  
+        })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps( 
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
+    async def add_controlled_degradation_template(self,
+        subject_name: str, 
+        subject_initial_value: float,
+        controller_name: str,
+        controller_initial_value: float,
+        parameter_name: str,
+        parameter_units: str,
+        parameter_value: str,
+        parameter_description: str,
+        template_expression: str,
+        template_name: str,
+        agent: AgentRef, loop: LoopControllerRef):
+        """
+        This tool is used when a user wants to add a controlled degradation to the model. 
+        A controlled degradation is a template that contains one state in which the population is leaving through one transition. This transition rate depends on a controller state. This controller state can be an existing or new state in the model.
+
+        Args:
+            subject_name (str): the state name that is the new transition's outputs. This is the state population moves to.
+            subject_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
+            controller_name (str): The name of the controller state. This is the state that will impact the transition's rate.
+            controller_initial_value (float): The initial value of the controller.
+            parameter_name (str): the name of the parameter.
+            parameter_units (str): The units assosiated with the parameter.
+            parameter_value (str): the value of the parameter provided by the user.
+            parameter_description (str): The description assosiated with the parameter. If not known or not specified the default value of `` should be used
+            template_expression (str): The mathematical rate law for the transition.
+            template_name (str): the name of the transition.
+        """
+
+        code = agent.context.get_code("add_controlled_degradation_template", {
+            "subject_name": subject_name,
+            "subject_initial_value": subject_initial_value,
+            "controller_name": controller_name,
+            "controller_initial_value": controller_initial_value,
+            "parameter_name": parameter_name,
+            "parameter_units": parameter_units,
+            "parameter_value": parameter_value,
+            "parameter_description": parameter_description,
+            "template_expression": template_expression,
+            "template_name": template_name  
+        })
         loop.set_state(loop.STOP_SUCCESS)
         return json.dumps( 
             {
