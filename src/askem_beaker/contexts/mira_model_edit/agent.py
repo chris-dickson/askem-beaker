@@ -76,7 +76,7 @@ class MiraModelEditAgent(BaseAgent):
                 "content": code.strip(),
             }
         )
-
+  
     @tool()
     async def add_natural_conversion_template(self,
         subject_name: str, 
@@ -94,6 +94,9 @@ class MiraModelEditAgent(BaseAgent):
         This tool is used when a user wants to add a natural conversion to the model. 
         A natural conversion is a template that contains two states and a transition where one state is sending population to the transition and one state is recieving population from the transition.
         The transition rate does not depend on any states.
+        
+        An example of this would be "Add a new transition from S to R with the name vaccine with the rate of v" 
+        Where S is the subject state, R is the outcome state, vaccine is the template_name, and v is the template_expression.
 
         Args:
             subject_name (str): The state name that is the source of the new transition. This is the state population comes from.
@@ -148,6 +151,9 @@ class MiraModelEditAgent(BaseAgent):
         This tool is used when a user wants to add a controlled conversion to the model. 
         A controlled conversion is a template that contains two states and a transition where one state is sending population to the transition and one state is recieving population from the transition.
         This transition rate depends on a controller state. This controller state can be an existing or new state in the model.
+        
+        An example of this would be "Add a new transition from S to R with the name vaccine with the rate of v. v depends on I"
+        Where S is the subject state, R is the outcome state, vaccine is the template_name, and v is the template_expression and I is the controller_name. 
 
         Args:
             subject_name (str): The state name that is the source of the new transition. This is the state population comes from.
@@ -202,6 +208,9 @@ class MiraModelEditAgent(BaseAgent):
         This tool is used when a user wants to add a natural production to the model. 
         A natural production is a template that contains one state which is recieving population by one transition. The transition will not depend on any state.
 
+        An example of this would be "Add a new transition from the transition rec to S with a rate of f."
+        Where S is the outcome state, rec is the template_name, and f is the template_expression
+
         Args:
             outcome_name (str): the state name that is the new transition's outputs. This is the state population moves to.
             outcome_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
@@ -248,6 +257,9 @@ class MiraModelEditAgent(BaseAgent):
         """
         This tool is used when a user wants to add a controlled production to the model. 
         A controlled production is a template that contains one state which is recieving population by one transition. This transition rate depends on a controller state. This controller state can be an existing or new state in the model.
+
+        An example of this would be "Add a new transition from the transition rec to S with a rate of f. f depends on R. "
+        Where S is the outcome state, rec is the template_name, f is the template_expression and the controller is R.
 
         Args:
             outcome_name (str): the state name that is the new transition's outputs. This is the state population moves to.
@@ -298,6 +310,9 @@ class MiraModelEditAgent(BaseAgent):
         This tool is used when a user wants to add a natural degradation to the model. 
         A natural degradation is a template that contains one state in which the population is leaving through one transition. The transition will only depend on its input state.
 
+        An example of this would be "Add a new transition from state S to transition rec with a rate of v."
+        Where S is the subject state, rec is the template_name, and v is the template_expression.
+
         Args:
             subject_name (str): the state name that is the new transition's outputs. This is the state population moves to.
             subject_initial_value (float): The number assosiated with the output state at its first step in time. If not known or not specified the default value of `1` should be used.
@@ -344,6 +359,9 @@ class MiraModelEditAgent(BaseAgent):
         """
         This tool is used when a user wants to add a controlled degradation to the model. 
         A controlled degradation is a template that contains one state in which the population is leaving through one transition. This transition rate depends on a controller state. This controller state can be an existing or new state in the model.
+
+        An example of this would be "Add a new transition from S to rec with a rate of v. v depends on R."
+        Where S is the subject state, rec is the template_name, v is the template_expression and R is the controller state.
 
         Args:
             subject_name (str): the state name that is the new transition's outputs. This is the state population moves to.
