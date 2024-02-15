@@ -23,13 +23,12 @@ id = "{{id}}"
 url = f"{hmi_server}/datasets/{id}/download-file?filename={{filename}}"
 
 # Make the HTTP GET request to retrieve the dataset
-response = requests.get(url, auth=(username, password))
+response = requests.get(url, auth=(username, password), stream=True)
 
 
 logger.error(f"response: {response}")
 lrc = len(response.content)
 logger.error(f"b: {lrc!r}")
-logger.error(f"b: {response.content[0:10]!r}")
 
 # Check the response status code
 if response.status_code <= 300:
@@ -43,5 +42,3 @@ else:
 
 
 dataset = xarray.open_dataset(BytesIO(response.content))
-
-dataset

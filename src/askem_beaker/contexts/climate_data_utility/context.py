@@ -72,12 +72,10 @@ class ClimateDataUtilityContext(BaseContext):
             },
         )
 
-        code_download = await self.beaker_kernel.evaluate(
+        await self.beaker_kernel.execute(
             code,
             parent_header={},
         )
-
-        download_bytes = code_download.get("return")
 
     @intercept()
     async def save_dataset_request(self, message):
