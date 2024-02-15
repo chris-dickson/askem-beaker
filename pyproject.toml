@@ -41,7 +41,8 @@ dependencies = [
   "chirho[extras]~=0.2.0",
   "pyro-ppl~=1.8.6",
   "pyro-api~=0.1.2",  
-  "torchdiffeq"
+  "torchdiffeq",
+  "h5netcdf~=1.3.0",
 ]
 
 [tool.hatch.metadata]
