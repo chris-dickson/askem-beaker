@@ -28,6 +28,7 @@ class MiraModelContext(BaseContext):
     model_json: Optional[str]
     model_dict: Optional[dict[str, Any]]
     var_name: Optional[str] = "model"
+    scheme_name: Optional[str] = "petrinet"
 
     def __init__(self, beaker_kernel: "LLMKernel", subkernel: "BaseSubkernel", config: Dict[str, Any]) -> None:
         self.reset()
@@ -52,6 +53,7 @@ class MiraModelContext(BaseContext):
             self.config_id = "default"
             meta_url = f"{os.environ['HMI_SERVER_URL']}/models/{self.model_id}"
             self.amr = requests.get(meta_url, auth=self.auth.requests_auth()).json()
+            self.schema_name = self.amr.get("header",{}).get("schema_name","petrinet")
         elif item_type == "model_config":
             self.config_id = item_id
             meta_url = f"{os.environ['HMI_SERVER_URL']}/model_configurations/{self.config_id}"
