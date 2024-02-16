@@ -52,11 +52,11 @@ class MiraModelEditContext(BaseContext):
 		if item_type == "model":
 			self.model_id = item_id
 			self.config_id = "default"
-			meta_url = f"{os.environ['DATA_SERVICE_URL']}/models/{self.model_id}"
+			meta_url = f"{os.environ['HMI_SERVER_URL']}/models/{self.model_id}"
 			self.amr = requests.get(meta_url, auth=self.auth.requests_auth()).json()
 		elif item_type == "model_config":
 			self.config_id = item_id
-			meta_url = f"{os.environ['DATA_SERVICE_URL']}/model_configurations/{self.config_id}"
+			meta_url = f"{os.environ['HMI_SERVER_URL']}/model_configurations/{self.config_id}"
 			self.configuration = requests.get(meta_url, auth=self.auth.requests_auth()).json()
 			self.model_id = self.configuration.get("model_id")
 			self.amr = self.configuration.get("configuration")
@@ -68,7 +68,7 @@ class MiraModelEditContext(BaseContext):
 		await self.send_mira_preview_message(parent_header=parent_header)
 
 	async def load_mira(self):
-		model_url = f"{os.environ['DATA_SERVICE_URL']}/models/{self.model_id}"
+		model_url = f"{os.environ['HMI_SERVER_URL']}/models/{self.model_id}"
 		command = "\n".join(
 				[
 						self.get_code("setup"),

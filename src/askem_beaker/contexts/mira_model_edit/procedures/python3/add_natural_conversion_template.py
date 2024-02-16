@@ -1,5 +1,14 @@
-subject_concept = Concept(name = "{{ subject_name }}")
-outcome_concept = Concept(name = "{{ outcome_name }}")
+concepts_name_map = model.get_concepts_name_map()
+if "{{ subject_name }}" not in concepts_name_map:
+    subject_concept = Concept(name = "{{ subject_name }}")
+else:
+    subject_concept = concepts_name_map.get("{{ subject_name }}")
+
+if "{{ outcome_name }}" not in concepts_name_map:
+    outcome_concept = Concept(name = "{{ outcome_name }}")
+else:
+    outcome_concept = concepts_name_map.get("{{ outcome_name }}")
+
 parameter_unit = Unit(expression = sympy.Symbol("{{ parameter_units }}"))
 
 parameters = {
