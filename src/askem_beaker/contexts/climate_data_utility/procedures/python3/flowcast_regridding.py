@@ -1,6 +1,6 @@
 import numpy as np
 import xarray as xr
-from flowcast.regrid import regrid_1d
+from flowcast.regrid import regrid_1d, RegridType
 import io
 
 
@@ -39,7 +39,7 @@ def regrid_dataset(dataset, target_resolution: tuple):
     original_resolution = (lon_spacing, lat_spacing)
 
     # Check if regridding is necessary
-    if original_resolution == target_resolution or 'lat' not in dataset.dims or 'lon' not in dataset.dims:
+    if original_resolution == target_resolution or "lat" not in dataset.dims or "lon" not in dataset.dims:
         # Skip regridding
         return dataset
 
@@ -55,14 +55,19 @@ def regrid_dataset(dataset, target_resolution: tuple):
     lats = lats[(lats + target_resolution[1] / 2 >= min_lat) & (lats - target_resolution[1] / 2 <= max_lat)]
     lons = lons[(lons + target_resolution[0] / 2 >= min_lon) & (lons - target_resolution[0] / 2 <= max_lon)]
 
-    # Get all data variables
-    data_vars = [var for var in dataset.variables if var not in dataset.dims]
+    # Get all data variables minus bounds
+    data_nobounds = [v for v in dataset.variables if not str(v).endswith("_bnds") and v not in dataset.dims]
 
-    # Regrid the dataset
-    new_data = regrid_1d(dataset.to_array(), lats, 'lat', aggregation={{aggregation}})
-    new_data = regrid_1d(new_data, lons, 'lon', aggregation={{aggregation}})
+    # Regrid each feature individually along lat/lon
+    def regrid_2d_latlon(ds, feature, ag):
+        regridded = regrid_1d(ds[feature], lats, "lat", aggregation=ag)
+        regridded = regrid_1d(regridded, lons, "lon", aggregation=ag)
+        return regridded
 
-    regridded_dataset = new_data.to_dataset(dim='variable')
+    method = RegridType.{{aggregation}}
+    regridded_dataset = xr.Dataset({
+        feature: regrid_2d_latlon(dataset, feature, method) for feature in data_nobounds
+    })
 
     # Persist attributes after regridding.
     # Copy attributes from source variables
