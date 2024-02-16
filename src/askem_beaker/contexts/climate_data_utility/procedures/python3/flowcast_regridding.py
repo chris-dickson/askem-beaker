@@ -52,6 +52,10 @@ def regrid_dataset(dataset, target_resolution: tuple):
     max_lat = dataset.lat.data.max()
     min_lon = dataset.lon.data.min()
     max_lon = dataset.lon.data.max()
+    
+    if min_lon >= 0.0:
+        lons = np.arange(0, 360, target_resolution[0])
+
     lats = lats[(lats + target_resolution[1] / 2 >= min_lat) & (lats - target_resolution[1] / 2 <= max_lat)]
     lons = lons[(lons + target_resolution[0] / 2 >= min_lon) & (lons - target_resolution[0] / 2 <= max_lon)]
 
@@ -60,8 +64,8 @@ def regrid_dataset(dataset, target_resolution: tuple):
 
     # Regrid each feature individually along lat/lon
     def regrid_2d_latlon(ds, feature, ag):
-        regridded = regrid_1d(ds[feature], lats, "lat", aggregation=ag)
-        regridded = regrid_1d(regridded, lons, "lon", aggregation=ag)
+        regridded = regrid_1d(ds[feature], lats, "lat", aggregation=ag, low_memory=True)
+        regridded = regrid_1d(regridded, lons, "lon", aggregation=ag, low_memory=True)
         return regridded
 
     method = RegridType.{{aggregation}}
