@@ -14,11 +14,13 @@ if "{{controller_name}}" not in concepts_name_map:
 else:
     controller_concept = concepts_name_map.get("{{controller_name}}")
 
-parameter_unit = Unit(expression = sympy.Symbol("{{ parameter_units}}"))
-
-parameters = {
-    "{{ parameter_name}}": Parameter(name = "{{ parameter_name}}", value = {{ parameter_value }}, units = parameter_unit, description = "{{ parameter_description}}")
-}
+if "{{ parameter_name}}" not in model.parameters: #note this is checks for paremeter's symbol
+    parameter_unit = Unit(expression = sympy.Symbol("{{ parameter_units}}"))
+    parameters = {
+        "{{ parameter_name}}": Parameter(name = "{{ parameter_name}}", value = {{ parameter_value }}, units = parameter_unit, description = "{{ parameter_description}}")
+    }
+else: 
+    parameters = {"{{ parameter_name}}": model.parameters.get("{{ parameter_name}}")}
 
 initials = { 
     "{{subject_name}}": Initial(concept = subject_concept, expression = sympy.Float({{subject_initial_value}})),
