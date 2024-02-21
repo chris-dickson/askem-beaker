@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 class ClimateDataUtilityContext(BaseContext):
     slug = "climate_data_utility"
     agent_cls: "BaseAgent" = ClimateDataUtilityAgent
+    dataset_map: Dict[str, Any]
 
     def __init__(
         self,
@@ -36,7 +37,21 @@ class ClimateDataUtilityContext(BaseContext):
             raise ValueError("This context is only valid for Python.")
         self.climate_data_utility__functions = {}
         self.config = config
+        self.dataset_map = {}
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
+
+    async def setup(self, config, parent_header):
+        self.config = config
+        for name, dataset in self.config.items():
+            dataset_id = dataset.get("hmi_dataset_id", None)
+            filename = dataset.get("filename", None)
+            if dataset_id is None or filename is None:
+                logging.error(f"failed to download dataset from initial context: {dataset}")
+                return
+            await self.download_dataset(name, dataset_id, filename)
+
+    def reset(self):
+        self.dataset_map = {}
 
     async def auto_context(self):
         intro = f"""
@@ -63,14 +78,17 @@ class ClimateDataUtilityContext(BaseContext):
         filename = content.get("filename")
         if filename is None:
             filename = f"{uuid}.nc"
+        variable_name = content.get("variable_name") or "dataset_" + str(len(self.dataset_map))
 
+        await self.download_dataset(variable_name, uuid, filename)
+
+    async def download_dataset(self, variable_name, hmi_dataset_id, filename):
         code = self.get_code(
             "hmi_dataset_download",
-            {
-                "id": uuid,
-                "filename": filename,
-            },
+            {"id": hmi_dataset_id, "filename": filename, "variable_name": variable_name},
         )
+
+        self.dataset_map[variable_name] = {"id": hmi_dataset_id, "variable_name": variable_name}
 
         await self.beaker_kernel.execute(
             code,
