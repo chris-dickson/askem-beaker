@@ -1,4 +1,4 @@
-def rename_state(model , template_name: str, old_name: str, new_name: str) -> TemplateModel:
+def replace_state_name(model , template_name: str, old_name: str, new_name: str) -> TemplateModel:
 
     """
     Given a TemplateModel model and the old & new name of a state/concept therein, 
@@ -17,7 +17,7 @@ def rename_state(model , template_name: str, old_name: str, new_name: str) -> Te
     # Check if concept with new name exists
     if new_name in concepts_name_map:
         new_concept = concepts_name_map[new_name]
-        warnings.warn(f"State with name {new_name} exists already in model and will replace state {old_name} everywhere.", UserWarning)
+        print(f"State with name {new_name} exists already in model and will replace state {old_name} everywhere.", UserWarning)
 
     # Check if old name is already used by a parameter or observable
     if old_name in model.observables.keys():
