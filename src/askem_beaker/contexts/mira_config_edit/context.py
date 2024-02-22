@@ -55,8 +55,8 @@ class MiraConfigEditContext(BaseContext):
         meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations/{self.config_id}"
         logger.error(f"Meta url: {meta_url}")
         self.configuration = requests.get(meta_url, 
-                                          auth=(os.environ['HMI_SERVER_USER'],
-                                                os.environ['HMI_SERVER_PASSWORD'])
+                                          auth=(os.environ['AUTH_USERNAME'],
+                                                os.environ['AUTH_PASSWORD'])
                                                 ).json()
         logger.error(f"Succeeded in fetching model configuration, proceeding.")
         self.amr = self.configuration.get("configuration")
@@ -116,7 +116,7 @@ class MiraConfigEditContext(BaseContext):
 
         create_req = requests.put(
             f"{os.environ['HMI_SERVER_URL']}/model-configurations/{self.config_id}", json=model_config,
-                auth =(os.environ['HMI_SERVER_USER'], os.environ['HMI_SERVER_PASSWORD'])
+                auth =(os.environ['AUTH_USERNAME'], os.environ['AUTH_PASSWORD'])
         )
 
         if create_req.status_code == 200:
