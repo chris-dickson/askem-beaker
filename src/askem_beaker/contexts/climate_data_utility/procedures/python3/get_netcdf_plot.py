@@ -9,6 +9,11 @@ lon_col = "{{lon_col}}"
 time_slice_index = {{time_slice_index}}
 
 ds = {{dataset}}
+
+# cmip6 datasets contain a main variable id for meaning
+if plot_variable_name is None:
+    plot_variable_name = ds.attrs.get("variable_id", None)
+
 if plot_variable_name is None:
     plot_variable_name = list(ds.data_vars)[0]
 
