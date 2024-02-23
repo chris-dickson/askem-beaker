@@ -37,7 +37,7 @@ class DatasetAgent(BaseAgent):
         # set up the agent
         # str: Valid and correct python code that fulfills the user's request.
         var_sections = []
-        for var_name, dataset_obj in agent.context.dataset_map.items():
+        for var_name, dataset_obj in agent.context.asset_map.items():
             df_info = await agent.context.describe_dataset(var_name)
             var_sections.append(f"""
 You have access to a variable name `{var_name}` that is a {agent.context.metadata.get("df_lib_name", "Pandas")} Dataframe with the following structure:

@@ -35,7 +35,7 @@ class DatasetContext(BaseContext):
         await self.set_assets(self.config, parent_header=parent_header)
 
     async def post_execute(self, message):
-        await self.update_dataset_map(parent_header=message.parent_header)
+        await self.update_asset_map(parent_header=message.parent_header)
         await self.send_df_preview_message(parent_header=message.parent_header)
 
     async def set_assets(self, assets, parent_header={}):
@@ -91,7 +91,7 @@ class DatasetContext(BaseContext):
             ]
         )
         await self.execute(command)
-        await self.update_dataset_map()
+        await self.update_asset_map()
 
     def reset(self):
         self.asset_map = {}
@@ -112,7 +112,7 @@ class DatasetContext(BaseContext):
         )
         return data
 
-    async def update_dataset_map(self, parent_header={}):
+    async def update_asset_map(self, parent_header={}):
         code = self.get_code("df_info")
         df_info_response = await self.beaker_kernel.evaluate(
             code,
