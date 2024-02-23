@@ -140,6 +140,11 @@ def stratify(
         A stratified template model
 ````````````````````
 
+`structure` should always be set to None
+`directed` should always be set to True
+`cartesian_control` should always be set to True
+
+
 You also have access to the libraries pandas, numpy, scipy, matplotlib and the full mira python library.
 
 Please generate the code as if you were programming inside a Jupyter Notebook and the code is to be executed inside a cell.
