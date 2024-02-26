@@ -1,21 +1,25 @@
-import logging
 import contextlib
-from importlib import import_module
 import io
 import json
-from typing import TYPE_CHECKING, Any, Dict
-import pickle
+import logging
 import os
+import pickle
+import pkgutil
+from importlib import import_module
+from typing import TYPE_CHECKING, Any, Dict
+
+import requests
 
 from beaker_kernel.lib.context import BaseContext
 from beaker_kernel.lib.subkernels.python import PythonSubkernel
-import pkgutil
+
 from .agent import Agent
 
 if TYPE_CHECKING:
     from beaker_kernel.kernel import LLMKernel
-    from .new_base_agent import NewBaseAgent
     from beaker_kernel.lib.subkernels.base import BaseSubkernel
+
+    from .new_base_agent import NewBaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -72,16 +76,16 @@ class Context(BaseContext):
         if not isinstance(subkernel, PythonSubkernel):
             raise ValueError("This context is only valid for Python.")
         self.library_name = self.context_conf.get("library_names", "a Jupyter notebook")[0]
-        self.sub_module_description = self.context_conf.get('library_submodule_descriptions', '')[0]
+        self.sub_module_description = self.context_conf.get("library_submodule_descriptions", "")[0]
         self.functions = {}
         self.config = config
         self.variables = {}
         self.imported_modules = {}
-        self.few_shot_examples = ''
+        self.few_shot_examples = ""
         self.code_blocks = (
             []
         )  # {'code':str,'execution_status':not_executed,executed_successfully,'execution_order':int,'output':output from running code block most recent time.}
-        self.code_block_print = '\n\n'.join(
+        self.code_block_print = "\n\n".join(
             [
                 f'Code Block[{i}]: {self.code_blocks[i]["code"]}\nExecution Status:{self.code_blocks[i]["execution_status"]}\nExecution Order:{self.code_blocks[i]["execution_order"]}\nCode Block Output or Error:{self.code_blocks[i]["output"]}'
                 for i in range(len(self.code_blocks))
@@ -89,6 +93,40 @@ class Context(BaseContext):
         )
 
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
+
+    async def setup(self, config, parent_header):
+        self.config = config
+        self.auth_details = (os.environ.get("AUTH_USERNAME", ""), os.environ.get("AUTH_PASSWORD", ""))
+        self.loaded_models = []
+        for item in self.config.get("models", []):
+            name = item.get("name", None)
+            model_id = item.get("model_id", None)
+            self.loaded_models.append(name)
+            if name is None or model_id is None:
+                logging.error(f"failed to download dataset from initial context: {name} {model_id}")
+                return
+            await self.fetch_model(name, model_id)
+
+    async def fetch_model(self, name, model_id):
+        model_url = f"{os.environ['HMI_SERVER_URL']}/models/{model_id}"
+        await self.load_mira_model(name, model_url)
+
+    async def load_mira_model(self, name, model_url):
+        command = "\n".join(
+            [
+                self.get_code("mira_setup"),
+                self.get_code(
+                    "load_mira_model",
+                    {
+                        "var_name": name,
+                        "model_url": model_url,
+                        "auth_details": self.auth_details,
+                    },
+                ),
+            ]
+        )
+        print(f"Running command:\n-------\n{command}\n---------")
+        await self.execute(command)
 
     async def get_jupyter_context(self):
         imported_modules = []
@@ -98,14 +136,14 @@ class Context(BaseContext):
             code,
             parent_header={},
         )
-        jupyter_context = {'user_vars': {}, 'imported_modules': []}
+        jupyter_context = {"user_vars": {}, "imported_modules": []}
         try:
-            jupyter_context = pickle.load(open('/tmp/jupyter_state.pkl', 'rb'))
+            jupyter_context = pickle.load(open("/tmp/jupyter_state.pkl", "rb"))
         except:
-            logger.error('failed to load jupyter_state.pkl')
+            logger.error("failed to load jupyter_state.pkl")
 
-        variables = jupyter_context['user_vars']
-        imported_modules = jupyter_context['imported_modules']
+        variables = jupyter_context["user_vars"]
+        imported_modules = jupyter_context["imported_modules"]
         return variables, imported_modules
 
     async def post_execute(self, message):
@@ -126,10 +164,10 @@ class Context(BaseContext):
     async def auto_context(self):
         from .procedures.python3.dynamic_example_selector import query_examples
 
-        most_recent_user_query = ''
+        most_recent_user_query = ""
         for message in self.agent.messages:
-            if message['role'] == 'user':
-                most_recent_user_query = message['content']
+            if message["role"] == "user":
+                most_recent_user_query = message["content"]
         if most_recent_user_query != self.agent.most_recent_user_query:
             self.few_shot_examples = query_examples(most_recent_user_query)
             self.agent.debug(
@@ -319,8 +357,8 @@ If the request from the user is similar enough to one of these examples, use it 
 {self.few_shot_examples}
 """
 
-        '''If there is a main class or function you are using, you can lookup all the information on it and all the objects and functions required to use it using Toolset.get_class_or_function_full_information.
-        Use this when you want to instantiate a complicated object.'''
+        """If there is a main class or function you are using, you can lookup all the information on it and all the objects and functions required to use it using Toolset.get_class_or_function_full_information.
+        Use this when you want to instantiate a complicated object."""
 
         intro_manual3_few_repl_all_classes = f"""You are an exceptionally intelligent coding assistant that consistently delivers accurate and reliable responses to user instructions.
 {self.library_name} is a framework for representing systems using ontology-grounded meta-model templates, and generating various model implementations and exchange formats from these templates. 
@@ -389,7 +427,9 @@ Here are the code blocks in the user's notebook along with their execution statu
 Please answer any user queries or perform user instructions to the best of your ability, but do not guess if you are not sure of an answer.
 """
 
-        result = "\n".join([intro_manual3_few_no_repl_all_classes, code_environment2, outro])
+        loaded_models = "The currently loaded models are: " + " ".join(self.loaded_models) + "."
+
+        result = "\n".join([intro_manual3_few_no_repl_all_classes, code_environment2, loaded_models, outro])
         return result
 
     async def retrieve_documentation(self):
@@ -401,7 +441,7 @@ Please answer any user queries or perform user instructions to the best of your 
         }
         """
         documentation = {}
-        for package in self.context_conf.get('library_names', []):
+        for package in self.context_conf.get("library_names", []):
             module = import_module(package)
 
             # Redirect the standard output to capture the help text

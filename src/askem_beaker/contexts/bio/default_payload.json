@@ -1,12 +1,8 @@
 {
     "models": [
         {
-            "name": "sir_model",
-            "model_id": "sir-model-id"
-        },
-        {
             "name": "seird_model",
-            "model_id": "seird-model-id"
+            "model_id": "e72ad5c5-0caa-9ede-7344-25565dd47de4"
         }
     ]
 }
