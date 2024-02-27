@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 CONTEXT_JSON = """
 {
-    "slug": "beaker_bio",
-    "package": "beaker_bio_context.context",
+    "slug": "beaker_mira",
+    "package": "beaker_mira_context.context",
     "class_name": "Context",
     "library_names": [
         "mira"
@@ -63,7 +63,7 @@ CONTEXT_JSON = """
 
 
 class Context(BaseContext):
-    slug = "bio"
+    slug = "mira"
     agent_cls: "NewBaseAgent" = Agent
 
     def __init__(

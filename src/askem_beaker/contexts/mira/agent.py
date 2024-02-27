@@ -48,8 +48,8 @@ from typing import Annotated, Union, List
 
 CONTEXT_JSON = """
 {
-    "slug": "beaker_bio",
-    "package": "beaker_bio_context.context",
+    "slug": "beaker_mira",
+    "package": "beaker_mira_context.context",
     "class_name": "Context",
     "library_names": [
         "mira"
