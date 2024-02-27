@@ -486,14 +486,14 @@ class Agent(NewBaseAgent):
 
 
         Args:
-            code (str): python code block to be submitted to the user inside triple backticks.
+            code (str): code block to be submitted to the user inside triple backticks.
         """
         loop.set_state(loop.STOP_SUCCESS)
         preamble, code, coda = re.split("```\w*", code)
         result = json.dumps(
             {
                 "action": "code_cell",
-                "language": "python3",
+                "language": self.context.subkernel.KERNEL_NAME,
                 "content": code.strip(),
             }
         )
