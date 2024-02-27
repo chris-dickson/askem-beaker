@@ -22,5 +22,4 @@ services:
       - .env
     volumes:
       - ./src/askem_beaker:/home/jupyter/askem_beaker
-      - ./chromadb_functions:/home/jupyter/chromadb_functions
     command: ["python", "-m", "beaker_kernel.server.dev", "watch"]
