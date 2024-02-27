@@ -7,6 +7,7 @@ import logging
 import re
 
 from archytas.tool_utils import AgentRef, LoopControllerRef, tool, toolset
+from askem_beaker.contexts.mira.new_base_agent import NewBaseAgent
 
 from beaker_kernel.lib.agent import BaseAgent
 from beaker_kernel.lib.context import BaseContext
@@ -183,7 +184,7 @@ class Toolset:
         return query_functions_classes(query)
 
 
-class Agent(BaseAgent):
+class Agent(NewBaseAgent):
     """
     You are assisting us in performing important scientific tasks.
 
