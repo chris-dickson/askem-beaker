@@ -2,7 +2,7 @@
 
 import glob
 import logging
-from .embed_utils import RecursiveCharacterTextSplitter, count_words, start_chromadb
+from ..procedures.python3.embed_utils import RecursiveCharacterTextSplitter, count_words, start_chromadb
 
 logger = logging.getLogger(__name__)
 

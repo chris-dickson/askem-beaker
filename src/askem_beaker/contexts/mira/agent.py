@@ -295,7 +295,7 @@ class Toolset:
         Args:
             query (str): Natural language query. Some Examples - DOCUMENTATION_QUERY_EXAMPLES
         """
-        from .procedures.python3.embed_documents import query_docs
+        from .lib.embed_documents import query_docs
 
         return query_docs(query)
 
@@ -309,7 +309,7 @@ class Toolset:
         Args:
             query (str): Natural language query. Some Examples - DOCUMENTATION_QUERY_EXAMPLES
         """
-        from .procedures.python3.embed_functions_classes_2 import query_functions_classes
+        from .lib.embed_functions_classes_2 import query_functions_classes
 
         return query_functions_classes(query)
 
