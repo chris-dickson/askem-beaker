@@ -4,67 +4,25 @@ import json
 import logging
 import os
 import pickle
-import pkgutil
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, Dict
-
-import requests
 
 from beaker_kernel.lib.context import BaseContext
 from beaker_kernel.lib.subkernels.python import PythonSubkernel
 
-from .agent import Agent
+from .agent import Agent, CONTEXT_JSON
 
 if TYPE_CHECKING:
     from beaker_kernel.kernel import LLMKernel
     from beaker_kernel.lib.subkernels.base import BaseSubkernel
 
-    from .new_base_agent import NewBaseAgent
 
 logger = logging.getLogger(__name__)
-
-CONTEXT_JSON = """
-{
-    "slug": "beaker_mira",
-    "package": "beaker_mira_context.context",
-    "class_name": "Context",
-    "library_names": [
-        "mira"
-    ],
-    "library_descriptions": [
-        "mira is a framework for representing systems using ontology-grounded meta-model templates, and generating various model implementations and exchange formats from these templates. It also implements algorithms for assembling and querying domain knowledge graphs in support of modeling."
-    ],
-    "library_submodule_descriptions": [
-        "mira.dkg - This module contains code for the construction of domain knowledge graphs.",
-        "mira.modeling - This module contains code for modeling. The top level contains the Model class, together with the Variable, Transition, and ModelParameter classes, used to represent a Model.",
-        "mira.metamodel - This module contains information on code related to meta models.",
-        "mira.sources - This module contains code to access models from different sources like json, url, etc..",
-        "mira.terarium_client - This module contains code which allows access to the terarium client. A web application for modeling. This module is not to be used.",
-        "mira.examples - This module contains examples of how to assemble and modify models in mira."
-    ],
-    "class_examples": [
-        "mira.modeling.triples.Triple"
-    ],
-    "function_examples": [
-        "mira.metamodel.io.model_from_json_file"
-    ],
-    "class_method_example": [
-        "mira.metamodel.template_model.TemplateModel.get_parameters_from_rate_law"
-    ],
-    "submodule_examples": [
-        "mira.modeling"
-    ],
-    "documentation_query_examples": [
-        "'ode model', 'sir model', 'using dkg package'"
-    ],
-    "task_description": "Modeling and Visualization"
-}
-"""
 
 
 class Context(BaseContext):
     slug = "mira"
-    agent_cls: "NewBaseAgent" = Agent
+    agent_cls = Agent
 
     def __init__(
         self,
@@ -162,7 +120,7 @@ class Context(BaseContext):
         )
 
     async def auto_context(self):
-        from .lib.dynamic_example_selector import query_examples
+        from .lib.utils import query_examples
 
         most_recent_user_query = ""
         for message in self.agent.messages:
