@@ -29,7 +29,7 @@ class MiraModelContext(BaseContext):
     model_json: Optional[str]
     model_dict: Optional[dict[str, Any]]
     var_name: Optional[str] = "model"
-    scheme_name: Optional[str] = "petrinet"
+    schema_name: Optional[str] = "petrinet"
 
     def __init__(self, beaker_kernel: "LLMKernel", subkernel: "BaseSubkernel", config: Dict[str, Any]) -> None:
         self.reset()
@@ -146,7 +146,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
             unloader = f"template_model_to_stockflow_json({self.var_name})"
         else:
             unloader = f"template_model_to_petrinet_json({self.var_name})"
-            
+
         new_model: dict = (
             await self.evaluate(unloader)
         )["return"]
