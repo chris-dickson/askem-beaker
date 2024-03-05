@@ -22,6 +22,12 @@ RUN apt update && \
     apt clean -y && \
     apt autoclean -y
 
+RUN apt-get install -y build-essential make gcc g++ git gfortran npm \
+        gdal-bin libgdal-dev python3-all-dev libspatialindex-dev && \
+    npm install -g typescript
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
 # Switch to non-root user. It is crucial for security reasons to not run jupyter as root user!
 RUN useradd -m jupyter
 USER jupyter
