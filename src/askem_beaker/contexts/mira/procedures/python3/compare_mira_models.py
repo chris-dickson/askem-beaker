@@ -19,3 +19,4 @@ for pair in itertools.combinations(models, 2):
     delta.draw_graph(filename, args="-Grankdir=TB")
     # Display the comparison
     display(Image(filename=filename))
+    del symbols
