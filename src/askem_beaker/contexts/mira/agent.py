@@ -58,6 +58,37 @@ class Toolset:
     """Toolset for our context"""
 
     @tool(autosummarize=True)
+    async def compare_models(self, model_vars: list, agent: AgentRef) -> str:
+        """
+        Use this tool to compare models and visualize the comparisons.
+        This function should be used to compare models and TemplateModels in mira.
+        You should use this tool if a user requests to structurally compare models, or compare them, or compare and visualize them.
+
+        If the user does not specify which models to compare, compare the models that have currently being worked with.
+        If you are unsure which models are being used, ask the user for information.
+
+        Args:
+            model_vars (list): a list of the variable names for models to be compared.
+
+        Returns:
+            str: The code used to compare the models.
+        """
+        plot_code = agent.context.get_code(
+            "compare_mira_models",
+            {
+                "model_vars": model_vars,
+            },
+        )
+        result = json.dumps(
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": plot_code.strip(),
+            }
+        )
+        return result
+
+    @tool(autosummarize=True)
     async def get_available_functions(self, package_name: str, agent: AgentRef):
         """
         Querying against the module or package should list all available submodules and functions that exist, so you can use this to discover available
