@@ -11,12 +11,10 @@ refinement_fun = is_ontological_child_web
 models = {{model_vars}}
 
 for pair in itertools.combinations(models, 2):
-    symbols = locals()
     # Compare the pair of models by name
-    delta = TemplateModelDelta(symbols[pair[0]], symbols[pair[1]], refinement_fun)
+    delta = TemplateModelDelta(locals()[pair[0]], locals()[pair[1]], refinement_fun)
     # Visualize the comparison
     filename = f"comparison_{pair[0]}_{pair[1]}.png"
     delta.draw_graph(filename, args="-Grankdir=TB")
     # Display the comparison
     display(Image(filename=filename))
-    del symbols
