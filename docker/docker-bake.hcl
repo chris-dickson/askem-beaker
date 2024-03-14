@@ -41,6 +41,10 @@ group "default" {
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Used by the metafile GH action
+# DO NOT ADD ANYTHING HERE THIS WILL BE POPULATED DYNAMICALLY
+# MAKE SURE THIS IS INHERITED NEAR THE END SO THAT IT DOES NOT GET OVERRIDEN
+target "docker-metadata-action" {}
 
 target "_platforms" {
   platforms = ["linux/amd64","linux/arm64"]
@@ -52,6 +56,7 @@ target "beaker-kernel-base" {
 	dockerfile = "Dockerfile"
 }
 
+# NOTE: target name will be used as the name of the image
 target "beaker-kernel" {
-  inherits = ["_platforms", "beaker-kernel-base"]
+  inherits = ["beaker-kernel-base", "docker-metadata-action", "_platforms"]
 }
