@@ -58,7 +58,7 @@ class Toolset:
     """Toolset for our context"""
 
     @tool(autosummarize=True)
-    async def compare_models(self, model_vars: list, agent: AgentRef) -> str:
+    async def compare_models(self, model_vars: list, agent: AgentRef, loop: LoopControllerRef) -> str:
         """
         Use this tool to compare models and visualize the comparisons.
         This function should be used to compare models and TemplateModels in mira.
@@ -68,11 +68,16 @@ class Toolset:
         If you are unsure which models are being used, ask the user for information.
 
         Args:
-            model_vars (list): a list of the variable names for models to be compared.
+            model_vars (list): a list of strings of the variable names for models to be compared.
 
         Returns:
             str: The code used to compare the models.
         """
+        loop.set_state(loop.STOP_SUCCESS)
+        # sometimes model_vars contains a dict and not a list despite the signature --
+        # handle those cases by extracting the proper field
+        if isinstance(model_vars, dict):
+            model_vars = list(model_vars.get("model_vars", []))
         plot_code = agent.context.get_code(
             "compare_mira_models",
             {
