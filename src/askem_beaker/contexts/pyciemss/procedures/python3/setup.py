@@ -12,7 +12,7 @@ from pyciemss.integration_utils.intervention_builder import (
     param_value_objective,
     start_time_objective,
 )
-from pyciemss.interfaces import optimize, simulate
+from pyciemss.interfaces import optimize, sample
 
 def obs_nday_average_qoi(
     samples: Dict[str, torch.Tensor], contexts: List, ndays: int = 7
