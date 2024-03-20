@@ -10,12 +10,7 @@ if not isinstance(file_bytes, bytes):
     file_bytes = file_bytes.to_netcdf()
 
 # Get the HMI_SERVER endpoint and auth token from the environment variable
-hmi_server = os.getenv('HMI_SERVER')
-auth_token = os.getenv('BASIC_AUTH_TOKEN')
-
-# Set the username and password
-username = os.getenv("HMI_SERVER_USER")
-password = os.getenv("HMI_SERVER_PASSWORD")
+hmi_server = os.getenv('HMI_SERVER_URL')
 
 # Define the id and filename dynamically
 id = "{{id}}"
@@ -30,7 +25,7 @@ files = {'file': file_bytes}
 
 # Make the HTTP PUT request to upload the file bytes
 url = f'{hmi_server}/datasets/{id}/upload-file'
-response = requests.put(url, data=payload, files=files, auth=(username, password))
+response = requests.put(url, data=payload, files=files, auth={{auth}})
 
 # Check the response status code
 if response.status_code < 300:

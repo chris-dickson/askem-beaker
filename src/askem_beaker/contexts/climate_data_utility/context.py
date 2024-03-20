@@ -1,18 +1,14 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional
-import json
-import codecs
-
-from beaker_kernel.lib.context import BaseContext
-from beaker_kernel.lib.subkernels.python import PythonSubkernel
-
-from beaker_kernel.lib.utils import intercept
+import logging
+import os
+from typing import TYPE_CHECKING, Any, Dict
 
 from archytas.tool_utils import LoopControllerRef
 
+from beaker_kernel.lib.context import BaseContext
+from beaker_kernel.lib.subkernels.python import PythonSubkernel
+from beaker_kernel.lib.utils import intercept
 
 from .agent import ClimateDataUtilityAgent
-
-import logging
 
 if TYPE_CHECKING:
     from beaker_kernel.kernel import LLMKernel
@@ -39,6 +35,9 @@ class ClimateDataUtilityContext(BaseContext):
         self.config = config
         self.dataset_map = {}
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
+
+    def get_auth(self) -> tuple[str, str]:
+        return (os.getenv("AUTH_USERNAME", ""), os.getenv("AUTH_PASSWORD", ""))
 
     async def setup(self, config, parent_header):
         self.config = config
@@ -85,11 +84,10 @@ class ClimateDataUtilityContext(BaseContext):
     async def download_dataset(self, variable_name, hmi_dataset_id, filename):
         code = self.get_code(
             "hmi_dataset_download",
-            {"id": hmi_dataset_id, "filename": filename, "variable_name": variable_name},
+            {"auth": self.get_auth(), "id": hmi_dataset_id, "filename": filename, "variable_name": variable_name},
         )
 
         self.dataset_map[variable_name] = {"id": hmi_dataset_id, "variable_name": variable_name}
-
         await self.beaker_kernel.execute(
             code,
             parent_header={},
@@ -130,6 +128,7 @@ class ClimateDataUtilityContext(BaseContext):
                 "data": dataset,
                 "id": id,
                 "filename": f"{new_dataset_filename}",
+                "auth": self.get_auth(),
             },
         )
 
