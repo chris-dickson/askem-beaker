@@ -58,7 +58,14 @@ class PyCIEMSSContext(BaseContext):
         self.send_response("iopub", "code_cell", {"code": code}, parent_header=message.header) 
         return code
     get_optimize._default_payload = "{}"
-   
+
+    @action()
+    async def get_simulate(self, message):
+        code = self.get_code("simulate", message.content)
+        self.send_response("iopub", "code_cell", {"code": code}, parent_header=message.header) 
+        return code
+    get_simulate._default_payload = "{}"
+
     @action()
     async def save_results(self, message):
         code = self.get_code("save_results")
