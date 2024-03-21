@@ -9,11 +9,7 @@ import xarray
 logger = logging.getLogger(__name__)
 
 # Get the HMI_SERVER endpoint from the environment variable
-hmi_server = os.getenv("HMI_SERVER")
-
-# Set the username and password
-username = os.getenv("HMI_SERVER_USER")
-password = os.getenv("HMI_SERVER_PASSWORD")
+hmi_server = os.getenv("HMI_SERVER_URL")
 
 # Define the id
 id = "{{id}}"
@@ -22,7 +18,7 @@ id = "{{id}}"
 url = f"{hmi_server}/datasets/{id}/download-file?filename={{filename}}"
 
 # Make the HTTP GET request to retrieve the dataset
-response = requests.get(url, auth=(username, password), stream=True)
+response = requests.get(url, auth={{auth}}, stream=True)
 
 # Check the response status code
 if response.status_code <= 300:

@@ -32,12 +32,7 @@ payload = {
 payload["dataSourceDate"] = current_datetime
 
 # Get the HMI_SERVER environment variable
-hmi_server = os.getenv("HMI_SERVER")
-auth_token = os.getenv("BASIC_AUTH_TOKEN")
-
-# Set the username and password
-username = os.getenv("AUTH_USERNAME")
-password = os.getenv("AUTH_PASSWORD")
+hmi_server = os.getenv("HMI_SERVER_URL")
 
 # Set the headers
 headers = {
@@ -47,7 +42,7 @@ headers = {
 
 # Send the POST request with basic authentication
 create_url = f"{hmi_server}/datasets"
-response = requests.post(create_url, json=payload, headers=headers, auth=(username, password))
+response = requests.post(create_url, json=payload, headers=headers, auth={{auth}})
 
 # Check the response status code
 if response.status_code < 300:
