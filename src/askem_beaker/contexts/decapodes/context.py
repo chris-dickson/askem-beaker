@@ -70,9 +70,7 @@ class DecapodesContext(BaseContext):
         content = preview["return"]
 
         result = {
-            "decapodes": {
-                self.target: content,
-            }
+            "decapodes": content,
         }
         return result
 
@@ -159,6 +157,11 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
 
     @action()
     async def compile_expr(self, message):
+        """
+        Compiles a string declaration of the Decapodes Domain Specific Langauge to a SummationDecapode object.
+        The contents of the "declaration" element should match what would be put in a  `@decapode` macro block.
+        See https://algebraicjulia.github.io/Decapodes.jl/stable/klausmeier/#Model-Representation
+        """
         content = message.content
 
         declaration = content.get("declaration")
@@ -176,10 +179,16 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
             "iopub", "compile_expr_response", {"successs": True}, parent_header=message.header
         )
         await self.send_decapodes_preview_message(parent_header=message.header)
+    compile_expr._default_payload = """{
+  "declaration": "h::Form0\\n  Γ::Form1\\n  n::Constant\\n\\n  ḣ == ∂ₜ(h)\\n  ḣ == ∘(⋆, d, ⋆)(Γ * d(h) * avg₀₁(mag(♯(d(h)))^(n-1)) * avg₀₁(h^(n+2)))"
+}"""
 
 
     @action()
     async def construct_amr(self, message):
+        """
+        Constructs an AMR and returns it as a `construct_amr_response` message.
+        """
         content = message.content
 
         header =  {
@@ -207,9 +216,17 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         self.beaker_kernel.send_response(
             "iopub", "construct_amr_response", amr, parent_header=message.header
         )
+    construct_amr._default_payload = """{
+  "id": "(Optional)model_id",
+  "name": "model_name",
+  "description": "model description"
+}"""
 
     @action()
     async def save_amr(self, message):
+        """
+        Saves your decapode to the HMI server.
+        """
         content = message.content
 
         header = content["header"]
@@ -235,9 +252,20 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         self.beaker_kernel.send_response(
             "iopub", "save_model_response", content, parent_header=message.header
         )
+    save_amr._default_payload = """{
+  "header": {
+    "id": "(Optional)model_id",
+    "name": "model_name",
+    "description": "model description"
+  }
+}"""
 
     @action()
     async def model_to_equation(self, message):
+        """
+        Converts a decapode model/expression to an equation.
+        The equation is returned in the content of the `model_to_equation_response` message.
+        """
         content = message.content
         model_name = content.get("model_name", self.target)
 
@@ -253,10 +281,16 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         self.beaker_kernel.send_response(
             "iopub", "model_to_equation_response", content, parent_header=message.header
         )
+    model_to_equation._default_payload = """{
+  "model_name": "(optional - default: decapode) variable_name_of_model"
+}"""
 
 
     @action(action_name="reset")
     async def reset_action(self, message):
+        """
+        Resets the a model as if it were freshly spawned, undoing any changes.
+        """
         content = message.content
 
         model_name = content.get("model_name", self.target)
@@ -274,9 +308,15 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
             "iopub", "reset_response", content, parent_header=message.header
         )
         await self.send_decapodes_preview_message(parent_header=message.header)
+    reset_action._default_payload = """{
+  "var_name": "(optional - default: decapode) variable_name_of_model"
+}"""
 
     @action()
     async def save_solution(self, message):
+        """
+        Saves a solution to the HMI server.
+        """
         content = message.content
 
         name = content.get("name")
@@ -326,4 +366,9 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
                     "filename": filename,
                 },
             )
-
+    save_solution._default_payload = """{
+  "name": "new_model_id",
+  "description": "new model description",
+  "filename": "(optional - default: dataset.csv) name_of_file",
+  "soln_name": "solution name"
+}"""
