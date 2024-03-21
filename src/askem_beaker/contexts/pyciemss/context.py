@@ -77,9 +77,9 @@ class PyCIEMSSContext(BaseContext):
         payload = {
             "name": "PyCIEMSS Notebook Session",
             "execution_payload": {},
-            "result_files": [], #response["return"],
+            "result_files": response["return"],
             "type": sim_type,
-            "status": "success",
+            "status": "complete",
             "engine": "ciemss",
         }
         response = requests.post(post_url, json=payload, auth=auth)
