@@ -52,14 +52,19 @@ class PyCIEMSSContext(BaseContext):
         print(f"Running command:\n-------\n{command}\n---------")
         await self.execute(command)        
 
-
     @action()
     async def get_optimize(self, message):
         code = self.get_code("optimize", message.content)
         self.send_response("iopub", "code_cell", {"code": code}, parent_header=message.header) 
         return code
     get_optimize._default_payload = "{}"
-   
+
+    @action()
+    async def get_simulate(self, message):
+        code = self.get_code("simulate", message.content)
+        self.send_response("iopub", "code_cell", {"code": code}, parent_header=message.header) 
+        return code
+    get_simulate._default_payload = "{}"
 
     @action()
     async def save_results(self, message):
@@ -67,5 +72,43 @@ class PyCIEMSSContext(BaseContext):
         response = await self.evaluate(code)
         return response["return"]
     save_results._default_payload = "{}"
+
+    @action()
+    async def save_results_to_hmi(self, message):
+        post_url = os.environ["HMI_SERVER_URL"] + "/simulations"
+        sim_type = message.content.get("sim_type", "simulate")
+        auth = self.auth.requests_auth()
+        response = await self.evaluate(
+           f"_result_fields()" 
+        )
+        payload = {
+            "name": "PyCIEMSS Notebook Session",
+            "execution_payload": {},
+            "result_files": response["return"],
+            "type": sim_type,
+            "status": "complete",
+            "engine": "ciemss",
+        }
+        response = requests.post(post_url, json=payload, auth=auth)
+        if response.status_code >= 300:
+            raise Exception(
+                (
+                    "Failed to create simulation on TDS "
+                    f"(reason: {response.reason}({response.status_code}) - {json.dumps(payload)}"
+                )
+            )
+
+        sim_id = response.json()["id"]
+        sim_url = post_url + f"/{sim_id}"
+        payload = requests.get(sim_url, auth=auth).json()
+        logging.error(f"Payload : {payload}")
+        result_files = await self.evaluate(
+           f"_save_result('{sim_id}', '{auth.username}', '{auth.password}')" 
+        )
+        assert isinstance(result_files["return"], list)
+        return sim_id
+    save_results_to_hmi._default_payload = "{}"
+
+
 
 
