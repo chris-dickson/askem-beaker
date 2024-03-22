@@ -139,6 +139,7 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
         content = message.content
 
         new_name = content.get("name")
+        project_id = content.get("project_id")
 
         if self.schema_name == "regnet":
             unloader = f"template_model_to_regnet_json({self.var_name})"
@@ -179,6 +180,12 @@ If you are asked to manipulate, stratify, or visualize the model, use the genera
             auth=self.auth.requests_auth(),
         )
         new_model_id = create_req.json()["id"]
+
+        if project_id is not None:
+            update_req = requests.post(
+                f"{os.environ['HMI_SERVER_URL']}/projects/{project_id}/assets/model/{new_model_id}",
+                auth=self.auth.requests_auth(),
+            )
 
         content = {"model_id": new_model_id}
         self.beaker_kernel.send_response(

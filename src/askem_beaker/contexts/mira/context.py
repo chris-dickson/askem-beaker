@@ -135,25 +135,17 @@ class Context(BaseContext):
                 "description"
             ] += f"\nTransformed from model '{original_name}' ({original_model_id}) at {datetime.datetime.utcnow().strftime('%c %Z')}"
 
-        if project_id is None:
-            create_req = requests.post(
-                f"{os.environ['HMI_SERVER_URL']}/models",
-                json=new_model,
-                auth=self.auth_details,
-            )
-            new_model_id = create_req.json()["id"]
+        create_req = requests.post(
+            f"{os.environ['HMI_SERVER_URL']}/models",
+            json=new_model,
+            auth=self.auth_details,
+        )
+        if create_req.status_code >= 300:
+            msg = f"failed to put new model: {create_req.status_code}"
+            raise ValueError(msg)
+        new_model_id = create_req.json()["id"]
 
-        else:
-            create_req = requests.post(
-                f"{os.environ['HMI_SERVER_URL']}/models",
-                json=new_model,
-                auth=self.auth_details,
-            )
-            if create_req.status_code >= 300:
-                msg = f"failed to put new model: {create_req.status_code}"
-                raise ValueError(msg)
-            new_model_id = create_req.json()["id"]
-
+        if project_id is not None:
             update_req = requests.post(
                 f"{os.environ['HMI_SERVER_URL']}/projects/{project_id}/assets/model/{new_model_id}",
                 auth=self.auth_details,
