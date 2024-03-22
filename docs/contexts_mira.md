@@ -28,6 +28,32 @@ This context is used for new development around [Mira](https://github.com/gyoril
     ]
 }
 ```
+## Custom Actions  
+### `save_amr`
+
+Message Payload:  
+* `name`: string, name of the new model to save
+* `model_var`: string, name of the variable containing a mira model; can be a newly created one or any of the ones loaded in context setup
+* `project_id`: *optional*, will save the model to the given project if desired.
+
+#### Save a new model to a given project:
+```
+{
+  "name": "New SIR model with changes",
+  "model_var": "sir_model",
+  "project_id": "d59c00f3-aeb9-42ed-97bf-cc36c14cd008"
+}
+```
+
+#### Save a new model to no specific project:
+```
+{
+  "name": "New SIR model with changes",
+  "model_var": "sir_model",
+}
+```
+
+## Interactive Use
 
 > **Note**: after setup, the models are accessible via the variable names corresponding to the given `name` field.
 
