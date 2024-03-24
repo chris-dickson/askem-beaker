@@ -6,9 +6,13 @@ import os
 import pickle
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, Dict
+from uuid import uuid4
+import requests
+import datetime
 
 from beaker_kernel.lib.context import BaseContext
 from beaker_kernel.lib.subkernels.python import PythonSubkernel
+from beaker_kernel.lib.utils import action
 
 from .agent import Agent, CONTEXT_JSON
 
@@ -49,6 +53,7 @@ class Context(BaseContext):
                 for i in range(len(self.code_blocks))
             ]
         )
+        self.amrs = {}
 
         super().__init__(beaker_kernel, subkernel, self.agent_cls, config)
 
@@ -70,21 +75,87 @@ class Context(BaseContext):
         await self.load_mira_model(name, model_url)
 
     async def load_mira_model(self, name, model_url):
+        amr_json = requests.get(model_url, auth=self.auth_details, timeout=10).json()
+        self.amrs[name] = amr_json
         command = "\n".join(
             [
                 self.get_code("mira_setup"),
                 self.get_code(
                     "load_mira_model",
-                    {
-                        "var_name": name,
-                        "model_url": model_url,
-                        "auth_details": self.auth_details,
-                    },
+                    {"var_name": name, "amr_json": amr_json},
                 ),
             ]
         )
         print(f"Running command:\n-------\n{command}\n---------")
         await self.execute(command)
+
+    @action()
+    async def save_amr(self, message):
+        content = message.content
+
+        new_name = content.get("name")
+        model_var = content.get("model_var")
+        project_id = content.get("project_id")
+
+        schema_name = self.amrs[model_var].get("header", {}).get("schema_name", "")
+        # Deprecated: get schema name from old format if needed
+        if schema_name == "":
+            schema_name = self.amrs[model_var].get("schema_name", "")
+
+        imports = "\n".join(
+            [
+                f"from mira.modeling.amr.{t} import template_model_to_{t}_json"
+                for t in ["regnet", "stockflow", "petrinet"]
+            ]
+        )
+        if schema_name == "regnet":
+            unloader = f"{imports}\ntemplate_model_to_regnet_json({model_var})"
+        elif schema_name == "stockflow":
+            unloader = f"{imports}\ntemplate_model_to_stockflow_json({model_var})"
+        else:
+            unloader = f"{imports}\ntemplate_model_to_petrinet_json({model_var})"
+
+        new_model: dict = (await self.evaluate(unloader))["return"]
+
+        original_name = new_model.get("header", {}).get("name", "None")
+        original_model_id = self.amrs[model_var]["id"]
+
+        # Deprecated: Handling both new and old model formats
+
+        if "header" in new_model:
+            new_model["header"]["name"] = new_name
+            new_description = (
+                new_model.get("header", {}).get("description", "")
+                + f"\nTransformed from model '{original_name}' ({original_model_id}) at {datetime.datetime.utcnow().strftime('%c %Z')}"
+            )
+            new_model["header"]["description"] = new_description
+        else:
+            new_model["name"] = new_name
+            new_model[
+                "description"
+            ] += f"\nTransformed from model '{original_name}' ({original_model_id}) at {datetime.datetime.utcnow().strftime('%c %Z')}"
+
+        create_req = requests.post(
+            f"{os.environ['HMI_SERVER_URL']}/models",
+            json=new_model,
+            auth=self.auth_details,
+        )
+        if create_req.status_code >= 300:
+            msg = f"failed to put new model: {create_req.status_code}"
+            raise ValueError(msg)
+        new_model_id = create_req.json()["id"]
+
+        if project_id is not None:
+            update_req = requests.post(
+                f"{os.environ['HMI_SERVER_URL']}/projects/{project_id}/assets/model/{new_model_id}",
+                auth=self.auth_details,
+            )
+            if update_req.status_code >= 300:
+                msg = f"failed to add to project id {project_id}: {new_model_id}: {update_req.status_code}"
+                raise ValueError(msg)
+
+        content = {"model_id": new_model_id}
+        self.beaker_kernel.send_response("iopub", "save_amr_response", content, parent_header=message.header)
 
     async def get_jupyter_context(self):
         imported_modules = []
