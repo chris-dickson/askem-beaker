@@ -14,7 +14,8 @@ ENV JULIA_PROJECT=/home/jupyter/.julia/environments/askem
 RUN apt update && \
     apt install -y r-base r-cran-irkernel \
         graphviz libgraphviz-dev \
-        libevent-core-2.1-7 libevent-pthreads-2.1-7 && \
+        libevent-core-2.1-7 libevent-pthreads-2.1-7 \
+        lsof && \
     apt clean -y && \
     apt autoclean -y \
     apt autoremove -y
