@@ -480,15 +480,21 @@ class MiraModelEditAgent(BaseAgent):
                 These will be the individual groups used to stratify by. This should be converted to a list of strings for e.g., ``["boston", "nyc"]``
                 or ``["geonames:4930956", "geonames:5128581"]``.
             structure (Optional):
+                This describes how different strata within the same state are able to interact.
                 An iterable of pairs corresponding to a directed network structure
                 where each of the pairs has two strata. If none given, will assume a complete
-                network structure. If no structure is necessary, pass an empty list. If the schema_name is 'regnet'
-                you must ALWAYS pass an empty list to this argument.
+                network structure. If no structure is necessary, pass an empty list. 
+                By default this should be an empty list. 
             directed (bool):
-                Should the reverse direction conversions be added based on the given structure?
+                If the structure tuples are combinations this should be True. If they are permutations this should be false.
                 If this value cannot be found it should default to False
             cartesian_control (bool):
-                If true, splits all control relationships based on the stratification.
+                True if the strata from different state variables can interact. 
+                For example Susceptible young people can interact with infected old poeple.
+                false if they cannot interact.
+                For example the infected people in Toronto do not interact with the susceptible people in Boston
+                
+                This will split all control relationships based on the stratification.
 
                 This should be true for an SIR epidemiology model, the susceptibility to
                 infected transition is controlled by infected. If the model is stratified by
