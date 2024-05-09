@@ -9,6 +9,7 @@ from archytas.tool_utils import AgentRef, LoopControllerRef, tool
 from beaker_kernel.lib.agent import BaseAgent
 from beaker_kernel.lib.context import BaseContext
 from beaker_kernel.lib.jupyter_kernel_proxy import JupyterMessage
+from typing import Collection, Iterable, Optional, Tuple
 
 logging.disable(logging.WARNING)  # Disable warnings
 logger = logging.Logger(__name__)
@@ -471,6 +472,86 @@ class MiraModelEditAgent(BaseAgent):
         code = agent.context.get_code("replace_ratelaw", {
             "template_name": template_name,
             "new_rate_law": new_rate_law
+        })
+        loop.set_state(loop.STOP_SUCCESS)
+        return json.dumps( 
+            {
+                "action": "code_cell",
+                "language": "python3",
+                "content": code.strip(),
+            }
+        )
+
+    @tool()
+    async def stratify(self,
+        agent: AgentRef, loop: LoopControllerRef,
+        key: str,
+        strata: Collection[str],
+        structure: Optional[Iterable[Tuple[str, str]]] = None,
+        directed: bool = False,
+        cartesian_control: bool = False,
+        modify_names: bool = True
+    ):
+        """
+        This tool is used when a user wants to stratify a model. 
+        This will multiple the model utilizing several strata.
+
+        An example of this would be "Stratify by location Toronto, Ottawa and Montreal. There are no interactions between members unless they are in the same location."
+        Here we can see that the key is location.
+        We can also see that the strata groups are Toronto, Ottawa and Montreal so we will write this as ["Toronto", "Ottawa", "Montreal"].
+        The last sentence here informs us that cartesian_control is True, directed is False, and structure can be left as []
+
+        Args:
+            key (str):
+                The (singular) name which describe the stratification. Some examples include, ``"City"``, ``"Age"``, ``"Vacination_Status"``, and ``"Location"``
+                If a key cannot be explicitly grabbed from try your best to categorize the strata  
+            strata (Collection):
+                These will be the individual groups used to stratify by. This should be converted to a list of strings for e.g., ``["boston", "nyc"]``
+                or ``["geonames:4930956", "geonames:5128581"]``.
+            structure (Optional):
+                This describes how different strata within the same state are able to interact.
+                An iterable of pairs corresponding to a directed network structure
+                where each of the pairs has two strata. If none given, will assume a complete
+                network structure. If no structure is necessary, pass an empty list. 
+                By default this should be an empty list. 
+            directed (bool):
+                If the structure tuples are combinations this should be True. If they are permutations this should be false.
+                If this value cannot be found it should default to False
+            cartesian_control (bool):
+                True if the strata from different state variables can interact. 
+                For example Susceptible young people can interact with infected old poeple.
+                false if they cannot interact.
+                For example the infected people in Toronto do not interact with the susceptible people in Boston
+                
+                This will split all control relationships based on the stratification.
+
+                This should be true for an SIR epidemiology model, the susceptibility to
+                infected transition is controlled by infected. If the model is stratified by
+                vaccinated and unvaccinated, then the transition from vaccinated
+                susceptible population to vaccinated infected populations should be
+                controlled by both infected vaccinated and infected unvaccinated
+                populations.
+
+                This should be false for stratification of an SIR epidemiology model based
+                on cities, since the infected population in one city won't (directly,
+                through the perspective of the model) affect the infection of susceptible
+                population in another city.
+
+                If this cannot be found it should default to False
+            modify_names (bool):
+                If true, will modify the names of the concepts to include the strata
+                (e.g., ``"S"`` becomes ``"S_boston"``). If false, will keep the original
+                names.
+                If this cannot be found it should default to True
+        """
+
+        code = agent.context.get_code("stratify", {
+            "key": key,
+            "strata": strata,
+            "structure": structure,
+            "directed": directed,
+            "cartesian_control": cartesian_control,
+            "modify_names": modify_names
         })
         loop.set_state(loop.STOP_SUCCESS)
         return json.dumps( 
