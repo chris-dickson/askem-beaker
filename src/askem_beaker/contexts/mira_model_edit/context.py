@@ -539,3 +539,34 @@ class MiraModelEditContext(BaseContext):
 		self.beaker_kernel.send_response(
 			"iopub", "amr_to_templates_response", content, parent_header=message.header
 		)
+
+	@intercept()
+	async def stratify_request(self, message):
+		content = message.content
+
+		key = content.get("key"),
+		strata = content.get("strata"),
+		concepts_to_stratify = content.get("concepts_to_stratify"),
+		params_to_stratify = content.get("params_to_stratify"),
+		cartesian_control = content.get("cartesian_control"),
+		structure = content.get("structure")
+
+		stratify_code = self.get_code("stratify", {
+		    "key": key,
+		    "strata": strata,
+		    "concepts_to_stratify": concepts_to_stratify,
+		    "params_to_stratify": params_to_stratify,
+		    "cartesian_control": cartesian_control,
+		    "structure": structure
+		})
+		stratify_result = await self.execute(stratify_code)
+
+		content = {
+		    "success": True,
+		    "executed_code": stratify_result["parent"].content["code"],
+		}
+
+		self.beaker_kernel.send_response(
+		    "iopub", "stratify_response", content, parent_header=message.header
+		)
+		await self.send_mira_preview_message(parent_header=message.header)
