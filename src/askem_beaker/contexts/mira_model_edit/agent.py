@@ -494,12 +494,12 @@ class MiraModelEditAgent(BaseAgent):
     ):
         """
         This tool is used when a user wants to stratify a model. 
-        This will multiple the model into several strata.
+        This will multiple the model utilizing several strata.
 
         An example of this would be "Stratify by location Toronto, Ottawa and Montreal. There are no interactions between members unless they are in the same location."
         Here we can see that the key is location.
         We can also see that the strata groups are Toronto, Ottawa and Montreal so we will write this as ["Toronto", "Ottawa", "Montreal"].
-        The last sentence here informs us that caertesian_control is True, directed is False, and structure can be left as []
+        The last sentence here informs us that cartesian_control is True, directed is False, and structure can be left as []
 
         Args:
             key (str):
