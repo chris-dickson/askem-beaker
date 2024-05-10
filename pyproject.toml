@@ -37,7 +37,8 @@ dependencies = [
   "tenacity~=8.2.3",
   "astunparse~=1.6.3",
   "tiktoken~=0.5.2",
-  "gilda",
+  "gilda==1.2.0",
+  "adeft==0.11.0",  # This is to prevent an upstream error as adept is required by gilda and there's a problem with a specific version
   "chirho[extras]~=0.2.0",
   "pyro-ppl~=1.8.6",
   "pyro-api~=0.1.2",  
