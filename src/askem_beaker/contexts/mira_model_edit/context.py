@@ -544,11 +544,11 @@ class MiraModelEditContext(BaseContext):
 	async def stratify_request(self, message):
 		content = message.content
 
-		key = content.get("key"),
-		strata = content.get("strata"),
-		concepts_to_stratify = content.get("concepts_to_stratify"),
-		params_to_stratify = content.get("params_to_stratify"),
-		cartesian_control = content.get("cartesian_control"),
+		key = content.get("key")
+		strata = content.get("strata")
+		concepts_to_stratify = content.get("concepts_to_stratify")
+		params_to_stratify = content.get("params_to_stratify")
+		cartesian_control = content.get("cartesian_control")
 		structure = content.get("structure")
 
 		stratify_code = self.get_code("stratify", {
