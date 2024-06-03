@@ -40,8 +40,8 @@ class MiraConfigEditContext(BaseContext):
     async def setup(self, context_info, parent_header):
         logger.error(f"performing setup...")
         self.config["context_info"] = context_info
-        item_id = config["context_info"]["id"]
-        item_type = config["context_info"].get("type", "model_config")
+        item_id = self.config["context_info"]["id"]
+        item_type = self.config["context_info"].get("type", "model_config")
         logger.error(f"Processing {item_type} AMR {item_id} as a MIRA model")
         await self.set_model_config(
             item_id, item_type, parent_header=parent_header
