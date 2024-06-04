@@ -49,6 +49,23 @@ RUN git clone https://github.com/indralab/mira.git /home/jupyter/mira && \
     pip install --no-cache-dir /home/jupyter/mira/"[ode,tests,dkg-client,sbml]" && \
     rm -r /home/jupyter/mira
 
+#### START Installs for PySB context
+# Install project requirements
+USER root
+WORKDIR /tmp
+RUN wget https://github.com/RuleWorld/bionetgen/releases/download/BioNetGen-2.9.2/BioNetGen-2.9.2-linux.tar.gz && \
+    tar -xzf BioNetGen-2.9.2-linux.tar.gz && \
+    mv BioNetGen-2.9.2 /usr/local/share/BioNetGen && \
+    rm BioNetGen-2.9.2-linux.tar.gz
+
+WORKDIR /opt/stochkit
+ENV STOCHKIT_HOME=/opt/stochkit
+RUN git clone https://github.com/StochSS/StochKit.git /opt/stochkit
+RUN bash ./install.sh
+USER jupyter
+ENV PATH=$PATH:$STOCHKIT_HOME/bin
+RUN pip install --no-cache-dir beaker-pysb
+####  END  Installs for PySB context
 
 # Install project requirements
 COPY --chown=1000:1000 pyproject.toml README.md hatch_build.py /home/jupyter/askem_beaker/
