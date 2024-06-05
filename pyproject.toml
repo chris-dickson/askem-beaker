@@ -59,9 +59,9 @@ allow-direct-references = true
 [tool.hatch.build.targets.wheel.shared-data]
 
 [project.urls]
-Documentation = "https://github.com/unknown/beaker-kernel#readme"
-Issues = "https://github.com/unknown/beaker-kernel/issues"
-Source = "https://github.com/unknown/beaker-kernel"
+Documentation = "https://github.com/DARPA-ASKEM/askem-beaker#readme"
+Issues = "https://github.com/DARPA-ASKEM/askem-beaker/issues"
+Source = "https://github.com/DARPA-ASKEM/askem-beaker"
 
 [tool.hatch.version]
 path = "beaker_kernel/__about__.py"

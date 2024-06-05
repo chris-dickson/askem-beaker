@@ -43,7 +43,7 @@ RUN pip install --no-cache-dir git+https://github.com/ciemss/pyciemss.git@9aa5d8
 
 
 # Install Mira from github, with cache-bust
-ADD https://api.github.com/repos/DARPA-ASKEM/beaker-kernel/git/refs/heads/main bust-cache.json
+ADD https://api.github.com/repos/DARPA-ASKEM/askem-beaker/git/refs/heads/main bust-cache.json
 
 RUN git clone https://github.com/indralab/mira.git /home/jupyter/mira && \
     pip install --no-cache-dir /home/jupyter/mira/"[ode,tests,dkg-client,sbml]" && \
