@@ -39,7 +39,7 @@ class PyCIEMSSContext(BaseContext):
     async def set_model_config(self, config_id, agent=None, parent_header=None):
         if parent_header is None: parent_header = {}
         self.config_id = config_id
-        meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations/{self.config_id}"
+        meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations-legacy/{self.config_id}"
         self.configuration = requests.get(meta_url, 
                                           auth=(os.environ['AUTH_USERNAME'],
                                                 os.environ['AUTH_PASSWORD'])
