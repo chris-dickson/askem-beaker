@@ -53,14 +53,13 @@ class MiraConfigEditContext(BaseContext):
 
     async def set_model_config(self, item_id, agent=None, parent_header={}):
         self.config_id = item_id
-        meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations-legacy/{self.config_id}"
+        meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations/as-configured-model/{self.config_id}"
         logger.error(f"Meta url: {meta_url}")
-        self.configuration = requests.get(meta_url, 
+        self.amr = requests.get(meta_url,
                                           auth=(os.environ['AUTH_USERNAME'],
                                                 os.environ['AUTH_PASSWORD'])
                                                 ).json()
-        logger.error(f"Succeeded in fetching model configuration, proceeding.")
-        self.amr = self.configuration.get("configuration")
+        logger.error(f"Succeeded in fetching configured model, proceeding.")
         self.schema_name = self.amr.get("header",{}).get("schema_name","petrinet")
         self.original_amr = copy.deepcopy(self.amr)
         if self.amr:
