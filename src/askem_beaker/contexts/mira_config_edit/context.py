@@ -112,11 +112,8 @@ class MiraConfigEditContext(BaseContext):
             await self.evaluate(unloader)
         )["return"]
 
-        model_config = self.configuration
-        model_config["configuration"] = new_model
-
         create_req = requests.put(
-            f"{os.environ['HMI_SERVER_URL']}/model-configurations/as-configured-model/{self.config_id}", json=model_config,
+            f"{os.environ['HMI_SERVER_URL']}/model-configurations/as-configured-model/{self.config_id}", json=new_model,
                 auth =(os.environ['AUTH_USERNAME'], os.environ['AUTH_PASSWORD'])
         )
 
