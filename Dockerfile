@@ -49,6 +49,9 @@ RUN git clone https://github.com/indralab/mira.git /home/jupyter/mira && \
     pip install --no-cache-dir /home/jupyter/mira/"[ode,tests,dkg-client,sbml]" && \
     rm -r /home/jupyter/mira
 
+# Install Gilda - Mira Dependency 
+RUN pip install gilda==1.2.1
+
 #### START Installs for PySB context
 # Install project requirements
 USER root
