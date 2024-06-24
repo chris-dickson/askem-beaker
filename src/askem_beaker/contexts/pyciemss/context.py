@@ -39,14 +39,12 @@ class PyCIEMSSContext(BaseContext):
     async def set_model_config(self, config_id, agent=None, parent_header=None):
         if parent_header is None: parent_header = {}
         self.config_id = config_id
-        meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations-legacy/{self.config_id}"
-        self.configuration = requests.get(meta_url, 
+        meta_url = f"{os.environ['HMI_SERVER_URL']}/model-configurations/as-configured-model/{self.config_id}"
+        self.amr = requests.get(meta_url,
                                           auth=(os.environ['AUTH_USERNAME'],
                                                 os.environ['AUTH_PASSWORD'])
                                                 ).json()
-        logger.info(f"Succeeded in fetching model configuration, proceeding.")
-        
-        self.amr = self.configuration.get("configuration")
+        logger.info(f"Succeeded in fetching configured model, proceeding.")
         self.schema_name = self.amr.get("header",{}).get("schema_name","petrinet")
         self.original_amr = copy.deepcopy(self.amr)
         command = f"model = {self.amr}"
