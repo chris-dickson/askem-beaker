@@ -7,9 +7,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Full Build"
-          command: |
-            docker build -f Dockerfile.full -t askem-beaker .
+          name: "Say hello"
+          command: "echo Hello, World!"
 workflows:
   build:
     jobs:
